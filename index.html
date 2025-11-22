@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orden de Trabajo - Diseño Gráfico</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Orden de Trabajo - Diseño Gráfico</h1>
+        <p class="subtitle">Especificaciones para contenido de redes sociales</p>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">🌗 Modo oscuro</button>
+      </div>
+    </header>
+
+    <div class="card">
+      <h2>Información Básica</h2>
+      <div class="two-columns">
+        <div class="form-group">
+          <label for="orderNumber">Número de Orden</label>
+          <input type="text" id="orderNumber" placeholder="Ej: DG-2023-001">
+        </div>
+        <div class="form-group">
+          <label for="orderDate">Fecha de Solicitud</label>
+          <input type="date" id="orderDate">
+        </div>
+        <div class="form-group">
+          <label for="dueDate">Fecha de Entrega</label>
+          <input type="date" id="dueDate">
+        </div>
+        <div class="form-group">
+          <label for="projectName">Proyecto/Cliente</label>
+          <input type="text" id="projectName" placeholder="Nombre del proyecto o cliente">
+        </div>
+        <div class="form-group">
+          <label for="designer">Diseñador Asignado</label>
+          <input type="text" id="designer" placeholder="Nombre del diseñador">
+        </div>
+        <div class="form-group">
+          <label for="priority">Prioridad</label>
+          <select id="priority">
+            <option value="low">Baja</option>
+            <option value="medium">Media</option>
+            <option value="high">Alta</option>
+            <option value="urgent">Urgente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="status">Estado</label>
+          <select id="status">
+            <option value="pendiente">Pendiente</option>
+            <option value="en_progreso">En progreso</option>
+            <option value="completado">Completado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="waPhone">Contacto WhatsApp (número con código país, sin +)</label>
+          <input type="tel" id="waPhone" placeholder="Ej: 593999888777">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tipo de Contenido</h2>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="reels">
+          <label for="reels">Reels (Instagram/Facebook)</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="posts">
+          <label for="posts">Posts para Feed</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="stories">
+          <label for="stories">Historias/Stories</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="carousel">
+          <label for="carousel">Carousel/Post Múltiple</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="facebook">
+          <label for="facebook">Facebook Posts</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="other">
+          <label for="other">Otro</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Especificaciones de Contenido</h2>
+      <div class="form-group">
+        <label for="contentTitle">Título/Headline</label>
+        <input type="text" id="contentTitle" placeholder="Título principal del contenido">
+      </div>
+      <div class="form-group">
+        <label for="contentText">Texto/Copy Principal</label>
+        <textarea id="contentText" placeholder="Texto que acompañará el contenido visual"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="cta">Llamado a la Acción (CTA)</label>
+        <input type="text" id="cta" placeholder="Ej: Visita nuestro sitio web, Suscríbete, Comparte">
+      </div>
+      <div class="form-group">
+        <label for="hashtags">Hashtags</label>
+        <textarea id="hashtags" placeholder="Lista de hashtags relevantes"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="mentions">Menciones/Etiquetas</label>
+        <input type="text" id="mentions" placeholder="Cuentas a mencionar o etiquetar">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Referencias Visuales</h2>
+      <p>Adjunta enlaces o imágenes de referencia para el diseño</p>
+      <div class="references">
+        <div class="reference-item">
+          <div class="reference-placeholder">📷</div>
+          <div class="reference-text">Referencia Visual 1</div>
+          <input type="text" id="ref1" placeholder="URL o descripción" style="margin-top: 10px;">
+        </div>
+        <div class="reference-item">
+          <div class="reference-placeholder">🎨</div>
+          <div class="reference-text">Referencia Visual 2</div>
+          <input type="text" id="ref2" placeholder="URL o descripción" style="margin-top: 10px;">
+        </div>
+        <div class="reference-item">
+          <div class="reference-placeholder">📱</div>
+          <div class="reference-text">Referencia Visual 3</div>
+          <input type="text" id="ref3" placeholder="URL o descripción" style="margin-top: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Especificaciones Técnicas</h2>
+      <div class="two-columns">
+        <div class="form-group">
+          <label for="brandColors">Colores de Marca</label>
+          <input type="text" id="brandColors" placeholder="Ej: #6a11cb, #2575fc, #ffffff">
+        </div>
+        <div class="form-group">
+          <label for="fonts">Fuentes Tipográficas</label>
+          <input type="text" id="fonts" placeholder="Ej: Montserrat, Open Sans">
+        </div>
+        <div class="form-group">
+          <label for="logoUsage">Uso de Logo</label>
+          <select id="logoUsage">
+            <option value="standard">Estándar</option>
+            <option value="minimal">Mínimo</option>
+            <option value="prominent">Prominente</option>
+            <option value="none">No incluir</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="style">Estilo de Diseño</label>
+          <select id="style">
+            <option value="modern">Moderno</option>
+            <option value="minimal">Minimalista</option>
+            <option value="elegant">Elegante</option>
+            <option value="fun">Divertido</option>
+            <option value="corporate">Corporativo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recursos Disponibles</h2>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="logos">
+          <label for="logos">Logotipos</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="images">
+          <label for="images">Imágenes</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="videos">
+          <label for="videos">Videos</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="brandGuide">
+          <label for="brandGuide">Guía de Marca</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="copy">
+          <label for="copy">Textos/Copy</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="resourceLinks">Enlaces a Recursos</label>
+        <textarea id="resourceLinks" placeholder="URLs de Drive, Dropbox, etc."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Notas Adicionales</h2>
+      <div class="form-group">
+        <textarea id="additionalNotes" placeholder="Instrucciones especiales, consideraciones, etc."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Configuración</h2>
+      <div class="two-columns">
+        <div class="form-group">
+          <label for="configPhone">WhatsApp por defecto (administrador)</label>
+          <input type="tel" id="configPhone" placeholder="Ej: 593999888777">
+          <p class="muted">Se usará si la orden no tiene un número específico.</p>
+        </div>
+        <div class="form-group">
+          <label>Automatización</label>
+          <div class="checkbox-item">
+            <input type="checkbox" id="configAutoOpenWa">
+            <label for="configAutoOpenWa">Abrir WhatsApp automáticamente en alertas</label>
+          </div>
+          <button class="btn btn-success" style="margin-top:10px" onclick="saveConfig()">Guardar Configuración</button>
+          <button class="btn btn-secondary" style="margin-top:10px" onclick="requestNotificationPermission()">Permitir notificaciones</button>
+          <button class="btn btn-secondary" style="margin-top:10px" onclick="exportOrders()">Exportar órdenes (JSON)</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" />
+          <button class="btn btn-secondary" style="margin-top:10px" onclick="document.getElementById('importFile').click()">Importar órdenes (JSON)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Flujo de trabajo - Órdenes</h2>
+      <div class="actions" style="margin-top:0; margin-bottom:15px;">
+        <button class="btn btn-primary" onclick="checkAlerts(true)">Revisar alertas ahora</button>
+        <span class="muted">Las alertas se revisan periódicamente mientras esta página está abierta.</span>
+      </div>
+      <div style="overflow:auto;">
+        <table class="table" id="ordersTable">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Proyecto</th>
+              <th>Entrega</th>
+              <th>Estado</th>
+              <th>Vencimiento</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="generateWhatsAppMessage()">📱 Generar Mensaje WhatsApp</button>
+      <button class="btn btn-primary" onclick="downloadExcel()">📊 Descargar CSV (Excel)</button>
+      <button class="btn btn-primary" onclick="downloadExcelStyled()">📗 Excel con diseño</button>
+      <button class="btn btn-success" onclick="saveOrder()">💾 Guardar Orden</button>
+      <button class="btn btn-secondary" onclick="printOrder()">🖨️ Imprimir</button>
+      <button class="btn btn-danger" onclick="clearOrder()">🧹 Limpiar</button>
+    </div>
+
+    <div class="card">
+      <h2>Formatos de Descarga</h2>
+      <div class="format-options">
+        <div class="format-card">
+          <div class="format-icon">📄</div>
+          <h3>Documento Word</h3>
+          <p>Formato editable para documentación</p>
+          <button class="btn btn-primary" style="margin-top: 10px; width: 100%;" onclick="downloadWord()">Descargar Word</button>
+        </div>
+        <div class="format-card">
+          <div class="format-icon">📊</div>
+          <h3>Plantillas Excel</h3>
+          <p>Elige el formato de exportación</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            <button class="btn btn-primary" style="flex:1; min-width:160px;" onclick="downloadExcel()">CSV (rápido)</button>
+            <button class="btn btn-primary" style="flex:1; min-width:160px;" onclick="downloadExcelStyled()">Excel con diseño</button>
+          </div>
+        </div>
+        <div class="format-card">
+          <div class="format-icon">📋</div>
+          <h3>Texto para WhatsApp</h3>
+          <p>Mensaje listo para enviar</p>
+          <button class="btn btn-primary" style="margin-top: 10px; width: 100%;" onclick="copyWhatsApp()">Copiar Texto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">Acción realizada correctamente</div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "orden-trabajo-latirana",
+  "version": "1.0.0",
+  "description": "Plataforma de gestión de órdenes de trabajo con alertas WhatsApp para diseño gráfico",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel",
+    "deploy:prod": "vercel --prod"
+  },
+  "keywords": [
+    "orden-trabajo",
+    "whatsapp",
+    "workflow",
+    "diseño-gráfico",
+    "alertas"
+  ],
+  "author": "LATIRANA",
+  "license": "UNLICENSED",
+  "private": true
+}

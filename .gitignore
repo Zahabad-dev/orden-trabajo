@@ -1,0 +1,26 @@
+# Dependencias
+node_modules/
+.vercel
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporales
+*.tmp
+.cache/
+
+# Respaldos
+*.bak
+*~

@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden de Trabajo - Diseño Gráfico</title>
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --text: #333;
+            --muted: #777;
+            --primary-start: #6a11cb;
+            --primary-end: #2575fc;
+            --card-bg: #fff;
+            --border: #e6e6e6;
+            --focus: #6a11cb;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        body.dark {
+            --bg: #0f172a;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --primary-start: #7c3aed;
+            --primary-end: #2563eb;
+            --card-bg: #111827;
+            --border: #1f2937;
+            --focus: #7c3aed;
+            --shadow: rgba(0,0,0,0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        h2 {
+            color: var(--text);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border 0.3s;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--focus);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.15);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input:invalid, select:invalid, textarea:invalid {
+            border-color: #ef4444;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .references {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .reference-item {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            background-color: rgba(0,0,0,0.03);
+        }
+        
+        .reference-item:hover {
+            border-color: var(--focus);
+            background-color: rgba(37,117,252,0.06);
+        }
+        
+        .reference-placeholder {
+            font-size: 40px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .reference-text {
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #374151;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+        
+        .format-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .format-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #eaeaea;
+        }
+        
+        .format-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Tablero de órdenes */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: left;
+        }
+        .table th {
+            background: rgba(0,0,0,0.04);
+        }
+        .chip {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .chip.success { background: #DCFCE7; color: #166534; }
+        .chip.warn { background: #FEF3C7; color: #92400E; }
+        .chip.danger { background: #FEE2E2; color: #991B1B; }
+        .chip.info { background: #DBEAFE; color: #1E40AF; }
+        .muted { color: var(--muted); font-size: 13px; }
+        
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #27ae60;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px var(--shadow);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        @media print {
+            body { padding: 0; background: #fff; }
+            header, .actions, .format-options, .notification, .header-actions { display: none !important; }
+            .card { box-shadow: none; border: 1px solid #ddd; border-radius: 0; page-break-inside: avoid; }
+            h2 { border-bottom: 1px solid #ddd; }
+            .container { max-width: 100%; margin: 0; padding: 0 10mm; }
+            input, select, textarea { border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Orden de Trabajo - Diseño Gráfico</h1>
+                <p class="subtitle">Especificaciones para contenido de redes sociales</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">🌗 Modo oscuro</button>
+            </div>
+        </header>
+        
+        <div class="card">
+            <h2>Información Básica</h2>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label for="orderNumber">Número de Orden</label>
+                    <input type="text" id="orderNumber" placeholder="Ej: DG-2023-001">
+                </div>
+                <div class="form-group">
+                    <label for="orderDate">Fecha de Solicitud</label>
+                    <input type="date" id="orderDate">
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Fecha de Entrega</label>
+                    <input type="date" id="dueDate">
+                </div>
+                <div class="form-group">
+                    <label for="projectName">Proyecto/Cliente</label>
+                    <input type="text" id="projectName" placeholder="Nombre del proyecto o cliente">
+                </div>
+                <div class="form-group">
+                    <label for="designer">Diseñador Asignado</label>
+                    <input type="text" id="designer" placeholder="Nombre del diseñador">
+                </div>
+                <div class="form-group">
+                    <label for="priority">Prioridad</label>
+                    <select id="priority">
+                        <option value="low">Baja</option>
+                        <option value="medium">Media</option>
+                        <option value="high">Alta</option>
+                        <option value="urgent">Urgente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status">Estado</label>
+                    <select id="status">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_progreso">En progreso</option>
+                        <option value="completado">Completado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="waPhone">Contacto WhatsApp (número con código país, sin +)</label>
+                    <input type="tel" id="waPhone" placeholder="Ej: 593999888777">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Tipo de Contenido</h2>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="reels">
+                    <label for="reels">Reels (Instagram/Facebook)</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="posts">
+                    <label for="posts">Posts para Feed</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="stories">
+                    <label for="stories">Historias/Stories</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="carousel">
+                    <label for="carousel">Carousel/Post Múltiple</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="facebook">
+                    <label for="facebook">Facebook Posts</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="other">
+                    <label for="other">Otro</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Especificaciones de Contenido</h2>
+            <div class="form-group">
+                <label for="contentTitle">Título/Headline</label>
+                <input type="text" id="contentTitle" placeholder="Título principal del contenido">
+            </div>
+            <div class="form-group">
+                <label for="contentText">Texto/Copy Principal</label>
+                <textarea id="contentText" placeholder="Texto que acompañará el contenido visual"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="cta">Llamado a la Acción (CTA)</label>
+                <input type="text" id="cta" placeholder="Ej: Visita nuestro sitio web, Suscríbete, Comparte">
+            </div>
+            <div class="form-group">
+                <label for="hashtags">Hashtags</label>
+                <textarea id="hashtags" placeholder="Lista de hashtags relevantes"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="mentions">Menciones/Etiquetas</label>
+                <input type="text" id="mentions" placeholder="Cuentas a mencionar o etiquetar">
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Referencias Visuales</h2>
+            <p>Adjunta enlaces o imágenes de referencia para el diseño</p>
+            <div class="references">
+                <div class="reference-item">
+                    <div class="reference-placeholder">📷</div>
+                    <div class="reference-text">Referencia Visual 1</div>
+                    <input type="text" id="ref1" placeholder="URL o descripción" style="margin-top: 10px;">
+                </div>
+                <div class="reference-item">
+                    <div class="reference-placeholder">🎨</div>
+                    <div class="reference-text">Referencia Visual 2</div>
+                    <input type="text" id="ref2" placeholder="URL o descripción" style="margin-top: 10px;">
+                </div>
+                <div class="reference-item">
+                    <div class="reference-placeholder">📱</div>
+                    <div class="reference-text">Referencia Visual 3</div>
+                    <input type="text" id="ref3" placeholder="URL o descripción" style="margin-top: 10px;">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Especificaciones Técnicas</h2>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label for="brandColors">Colores de Marca</label>
+                    <input type="text" id="brandColors" placeholder="Ej: #6a11cb, #2575fc, #ffffff">
+                </div>
+                <div class="form-group">
+                    <label for="fonts">Fuentes Tipográficas</label>
+                    <input type="text" id="fonts" placeholder="Ej: Montserrat, Open Sans">
+                </div>
+                <div class="form-group">
+                    <label for="logoUsage">Uso de Logo</label>
+                    <select id="logoUsage">
+                        <option value="standard">Estándar</option>
+                        <option value="minimal">Mínimo</option>
+                        <option value="prominent">Prominente</option>
+                        <option value="none">No incluir</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="style">Estilo de Diseño</label>
+                    <select id="style">
+                        <option value="modern">Moderno</option>
+                        <option value="minimal">Minimalista</option>
+                        <option value="elegant">Elegante</option>
+                        <option value="fun">Divertido</option>
+                        <option value="corporate">Corporativo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Recursos Disponibles</h2>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="logos">
+                    <label for="logos">Logotipos</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="images">
+                    <label for="images">Imágenes</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="videos">
+                    <label for="videos">Videos</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="brandGuide">
+                    <label for="brandGuide">Guía de Marca</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="copy">
+                    <label for="copy">Textos/Copy</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="resourceLinks">Enlaces a Recursos</label>
+                <textarea id="resourceLinks" placeholder="URLs de Drive, Dropbox, etc."></textarea>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Notas Adicionales</h2>
+            <div class="form-group">
+                <textarea id="additionalNotes" placeholder="Instrucciones especiales, consideraciones, etc."></textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Configuración</h2>
+            <div class="two-columns">
+                <div class="form-group">
+                    <label for="configPhone">WhatsApp por defecto (administrador)</label>
+                    <input type="tel" id="configPhone" placeholder="Ej: 593999888777">
+                    <p class="muted">Se usará si la orden no tiene un número específico.</p>
+                </div>
+                <div class="form-group">
+                    <label>Automatización</label>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="configAutoOpenWa">
+                        <label for="configAutoOpenWa">Abrir WhatsApp automáticamente en alertas</label>
+                    </div>
+                    <button class="btn btn-success" style="margin-top:10px" onclick="saveConfig()">Guardar Configuración</button>
+                    <button class="btn btn-secondary" style="margin-top:10px" onclick="requestNotificationPermission()">Permitir notificaciones</button>
+                    <button class="btn btn-secondary" style="margin-top:10px" onclick="exportOrders()">Exportar órdenes (JSON)</button>
+                    <input type="file" id="importFile" accept="application/json" style="display:none" />
+                    <button class="btn btn-secondary" style="margin-top:10px" onclick="document.getElementById('importFile').click()">Importar órdenes (JSON)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Flujo de trabajo - Órdenes</h2>
+            <div class="actions" style="margin-top:0; margin-bottom:15px;">
+                <button class="btn btn-primary" onclick="checkAlerts(true)">Revisar alertas ahora</button>
+                <span class="muted">Las alertas se revisan periódicamente mientras esta página está abierta.</span>
+            </div>
+            <div style="overflow:auto;">
+                <table class="table" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Proyecto</th>
+                            <th>Entrega</th>
+                            <th>Estado</th>
+                            <th>Vencimiento</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="generateWhatsAppMessage()">
+                📱 Generar Mensaje WhatsApp
+            </button>
+            <button class="btn btn-primary" onclick="downloadExcel()">
+                📊 Descargar CSV (Excel)
+            </button>
+            <button class="btn btn-primary" onclick="downloadExcelStyled()">
+                📗 Excel con diseño
+            </button>
+            <button class="btn btn-success" onclick="saveOrder()">
+                💾 Guardar Orden
+            </button>
+            <button class="btn btn-secondary" onclick="printOrder()">
+                🖨️ Imprimir
+            </button>
+            <button class="btn btn-danger" onclick="clearOrder()">
+                🧹 Limpiar
+            </button>
+        </div>
+        
+        <div class="card">
+            <h2>Formatos de Descarga</h2>
+            <div class="format-options">
+                <div class="format-card">
+                    <div class="format-icon">📄</div>
+                    <h3>Documento Word</h3>
+                    <p>Formato editable para documentación</p>
+                    <button class="btn btn-primary" style="margin-top: 10px; width: 100%;" onclick="downloadWord()">
+                        Descargar Word
+                    </button>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📊</div>
+                    <h3>Plantillas Excel</h3>
+                    <p>Elige el formato de exportación</p>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                        <button class="btn btn-primary" style="flex:1; min-width:160px;" onclick="downloadExcel()">
+                            CSV (rápido)
+                        </button>
+                        <button class="btn btn-primary" style="flex:1; min-width:160px;" onclick="downloadExcelStyled()">
+                            Excel con diseño
+                        </button>
+                    </div>
+                </div>
+                <div class="format-card">
+                    <div class="format-icon">📋</div>
+                    <h3>Texto para WhatsApp</h3>
+                    <p>Mensaje listo para enviar</p>
+                    <button class="btn btn-primary" style="margin-top: 10px; width: 100%;" onclick="copyWhatsApp()">
+                        Copiar Texto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        Acción realizada correctamente
+    </div>
+
+    <script>
+        // Utilidad: notificación
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        // Exportación CSV (compatible con Excel)
+        function downloadExcel() {
+            try {
+                const orderNumber = document.getElementById('orderNumber').value || 'Sin número';
+                const orderDate = document.getElementById('orderDate').value || 'No especificada';
+                const dueDate = document.getElementById('dueDate').value || 'No especificada';
+                const projectName = document.getElementById('projectName').value || 'Sin nombre';
+                const designer = document.getElementById('designer').value || 'No asignado';
+                const priority = document.getElementById('priority').value || 'No especificada';
+
+                const contentTypes = [];
+                if (document.getElementById('reels').checked) contentTypes.push('Reels');
+                if (document.getElementById('posts').checked) contentTypes.push('Posts Instagram');
+                if (document.getElementById('stories').checked) contentTypes.push('Historias');
+                if (document.getElementById('carousel').checked) contentTypes.push('Carousel');
+                if (document.getElementById('facebook').checked) contentTypes.push('Facebook Posts');
+                if (document.getElementById('other').checked) contentTypes.push('Otro');
+
+                const contentTitle = document.getElementById('contentTitle').value || 'No especificado';
+                const contentText = document.getElementById('contentText').value || 'No especificado';
+                const cta = document.getElementById('cta').value || 'No especificado';
+                const hashtags = document.getElementById('hashtags').value || 'No especificados';
+                const mentions = document.getElementById('mentions').value || 'No especificadas';
+
+                const brandColors = document.getElementById('brandColors').value || 'No especificados';
+                const fonts = document.getElementById('fonts').value || 'No especificadas';
+                const logoUsage = document.getElementById('logoUsage').value || 'No especificado';
+                const style = document.getElementById('style').value || 'No especificado';
+
+                const resources = [];
+                if (document.getElementById('logos').checked) resources.push('Logotipos');
+                if (document.getElementById('images').checked) resources.push('Imágenes');
+                if (document.getElementById('videos').checked) resources.push('Videos');
+                if (document.getElementById('brandGuide').checked) resources.push('Guía de Marca');
+                if (document.getElementById('copy').checked) resources.push('Textos/Copy');
+
+                const resourceLinks = document.getElementById('resourceLinks').value || 'No proporcionados';
+                const additionalNotes = document.getElementById('additionalNotes').value || 'No hay notas adicionales';
+
+                const ref1 = document.getElementById('ref1').value || 'No proporcionada';
+                const ref2 = document.getElementById('ref2').value || 'No proporcionada';
+                const ref3 = document.getElementById('ref3').value || 'No proporcionada';
+
+                const rows = [
+                    ['ORDEN DE TRABAJO - DISEÑO GRÁFICO'],
+                    [''],
+                    ['INFORMACIÓN BÁSICA'],
+                    ['Número de Orden', orderNumber],
+                    ['Fecha de Solicitud', orderDate],
+                    ['Fecha de Entrega', dueDate],
+                    ['Proyecto/Cliente', projectName],
+                    ['Diseñador Asignado', designer],
+                    ['Prioridad', priority],
+                    [''],
+                    ['TIPO DE CONTENIDO'],
+                    ['Contenidos Solicitados', contentTypes.join(', ')],
+                    [''],
+                    ['ESPECIFICACIONES DE CONTENIDO'],
+                    ['Título/Headline', contentTitle],
+                    ['Texto Principal', contentText],
+                    ['Llamado a la Acción (CTA)', cta],
+                    ['Hashtags', hashtags],
+                    ['Menciones/Etiquetas', mentions],
+                    [''],
+                    ['REFERENCIAS VISUALES'],
+                    ['Referencia 1', ref1],
+                    ['Referencia 2', ref2],
+                    ['Referencia 3', ref3],
+                    [''],
+                    ['ESPECIFICACIONES TÉCNICAS'],
+                    ['Colores de Marca', brandColors],
+                    ['Fuentes Tipográficas', fonts],
+                    ['Uso de Logo', logoUsage],
+                    ['Estilo de Diseño', style],
+                    [''],
+                    ['RECURSOS DISPONIBLES'],
+                    ['Recursos', resources.join(', ')],
+                    ['Enlaces a Recursos', resourceLinks],
+                    [''],
+                    ['NOTAS ADICIONALES'],
+                    ['Notas', additionalNotes],
+                    [''],
+                    ['INFORMACIÓN DE SEGUIMIENTO'],
+                    ['Estado', 'Pendiente'],
+                    ['Fecha de Inicio', ''],
+                    ['Fecha de Finalización', ''],
+                    ['Comentarios del Diseñador', '']
+                ];
+
+                const csvEscape = (val) => {
+                    const v = String(val ?? '');
+                    if (/[",\n\r]/.test(v)) {
+                        return '"' + v.replace(/"/g, '""') + '"';
+                    }
+                    return v;
+                };
+
+                const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+                const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                const fileName = `Orden_Trabajo_${orderNumber.replace(/\s+/g, '_')}.csv`;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                showNotification('¡Archivo CSV generado correctamente!');
+            } catch (error) {
+                console.error('Error al generar CSV:', error);
+                showNotification('Error al descargar el archivo CSV');
+            }
+        }
+        
+        function generateWhatsAppMessage() {
+    const project = document.getElementById('projectName').value || '[Nombre del Proyecto]';
+    const dueDate = document.getElementById('dueDate').value || '[Fecha de Entrega]';
+    const designer = document.getElementById('designer').value || '[Diseñador]';
+    
+    let contentTypes = [];
+    if (document.getElementById('reels').checked) contentTypes.push('Reels');
+    if (document.getElementById('posts').checked) contentTypes.push('Posts Instagram');
+    if (document.getElementById('stories').checked) contentTypes.push('Historias');
+    if (document.getElementById('carousel').checked) contentTypes.push('Carousel');
+    if (document.getElementById('facebook').checked) contentTypes.push('Posts Facebook');
+    
+    const title = document.getElementById('contentTitle').value || '[Título]';
+    const cta = document.getElementById('cta').value || '[CTA]';
+    const resourceLinks = document.getElementById('resourceLinks').value || '';
+    
+    let message = `¡Hola! Tengo una nueva orden de trabajo para ti:\n\n`;
+    message += `*Proyecto:* ${project}\n`;
+    message += `*Fecha de entrega:* ${dueDate}\n`;
+    message += `*Diseñador asignado:* ${designer}\n\n`;
+    
+    message += `*CONTENIDOS SOLICITADOS:*\n`;
+    contentTypes.forEach(type => {
+        message += `✅ ${type}\n`;
+    });
+    
+    message += `\n*DETALLES DEL CONTENIDO:*\n`;
+    message += `Título: ${title}\n`;
+    message += `CTA: ${cta}\n\n`;
+    
+    message += `*REFERENCIAS VISUALES:*\n`;
+    const ref1 = document.getElementById('ref1').value;
+    const ref2 = document.getElementById('ref2').value;
+    const ref3 = document.getElementById('ref3').value;
+    
+    if (ref1) message += `📷 Ref 1: ${ref1}\n`;
+    if (ref2) message += `🎨 Ref 2: ${ref2}\n`;
+    if (ref3) message += `📱 Ref 3: ${ref3}\n`;
+    
+    // NUEVA SECCIÓN: ENLACES A RECURSOS
+    if (resourceLinks) {
+        message += `\n*📎 ENLACES A RECURSOS:*\n`;
+        // Dividir los enlaces por líneas y formatearlos
+        const linksArray = resourceLinks.split('\n');
+        linksArray.forEach((link, index) => {
+            if (link.trim()) {
+                message += `🔗 ${link.trim()}\n`;
+            }
+        });
+    }
+    
+    // SECCIÓN DE RECURSOS DISPONIBLES
+    message += `\n*📂 RECURSOS DISPONIBLES:*\n`;
+    if (document.getElementById('logos').checked) message += `✅ Logotipos\n`;
+    if (document.getElementById('images').checked) message += `✅ Imágenes\n`;
+    if (document.getElementById('videos').checked) message += `✅ Videos\n`;
+    if (document.getElementById('brandGuide').checked) message += `✅ Guía de Marca\n`;
+    if (document.getElementById('copy').checked) message += `✅ Textos/Copy\n`;
+    
+    message += `\nRevisa la orden completa para más detalles. ¡Gracias!`;
+    
+    alert("Mensaje de WhatsApp generado. Puedes copiarlo y enviarlo.");
+    console.log(message);
+    return message;
+}
+        
+        function copyWhatsApp() {
+            const message = generateWhatsAppMessage();
+            navigator.clipboard.writeText(message).then(() => {
+                showNotification("Texto copiado al portapapeles");
+            });
+        }
+        
+        function downloadWord() {
+            // Exportar como .doc (HTML compatible con Word)
+            const wrapper = document.createElement('div');
+            const getVal = (id) => document.getElementById(id)?.value || '';
+            const checked = (id) => document.getElementById(id)?.checked;
+
+            const blocks = [
+                ['INFORMACIÓN BÁSICA', [
+                    ['Número de Orden', getVal('orderNumber')],
+                    ['Fecha de Solicitud', getVal('orderDate')],
+                    ['Fecha de Entrega', getVal('dueDate')],
+                    ['Proyecto/Cliente', getVal('projectName')],
+                    ['Diseñador Asignado', getVal('designer')],
+                    ['Prioridad', document.getElementById('priority').value]
+                ]],
+                ['TIPO DE CONTENIDO', [[
+                    'Contenidos Solicitados',
+                    [checked('reels')&&'Reels', checked('posts')&&'Posts Instagram', checked('stories')&&'Historias', checked('carousel')&&'Carousel', checked('facebook')&&'Facebook Posts', checked('other')&&'Otro'].filter(Boolean).join(', ')
+                ]]],
+                ['ESPECIFICACIONES DE CONTENIDO', [
+                    ['Título/Headline', getVal('contentTitle')],
+                    ['Texto Principal', getVal('contentText')],
+                    ['Llamado a la Acción (CTA)', getVal('cta')],
+                    ['Hashtags', getVal('hashtags')],
+                    ['Menciones/Etiquetas', getVal('mentions')]
+                ]],
+                ['REFERENCIAS VISUALES', [
+                    ['Referencia 1', getVal('ref1')],
+                    ['Referencia 2', getVal('ref2')],
+                    ['Referencia 3', getVal('ref3')]
+                ]],
+                ['ESPECIFICACIONES TÉCNICAS', [
+                    ['Colores de Marca', getVal('brandColors')],
+                    ['Fuentes Tipográficas', getVal('fonts')],
+                    ['Uso de Logo', document.getElementById('logoUsage').value],
+                    ['Estilo de Diseño', document.getElementById('style').value]
+                ]],
+                ['RECURSOS DISPONIBLES', [
+                    ['Recursos', [checked('logos')&&'Logotipos', checked('images')&&'Imágenes', checked('videos')&&'Videos', checked('brandGuide')&&'Guía de Marca', checked('copy')&&'Textos/Copy'].filter(Boolean).join(', ')],
+                    ['Enlaces a Recursos', getVal('resourceLinks')]
+                ]],
+                ['NOTAS ADICIONALES', [[ 'Notas', getVal('additionalNotes') ]]]
+            ];
+
+            let html = '<html><head><meta charset="utf-8"><style>body{font-family:Segoe UI,Arial,sans-serif}h1{font-size:20pt}h2{font-size:14pt;margin:16px 0 8px;border-bottom:1px solid #ddd;padding-bottom:4px}table{width:100%;border-collapse:collapse;margin-bottom:8px}td{border:1px solid #ddd;padding:6px;vertical-align:top}</style></head><body>';
+            html += '<h1>Orden de Trabajo - Diseño Gráfico</h1>';
+            blocks.forEach(([title, rows]) => {
+                html += `<h2>${title}</h2><table>`;
+                rows.forEach(([k,v]) => {
+                    html += `<tr><td style="width:30%"><b>${k}</b></td><td>${(v||'').toString().replace(/\n/g,'<br>')}</td></tr>`;
+                });
+                html += '</table>';
+            });
+            html += '</body></html>';
+
+            const blob = new Blob([html], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const orderNumber = document.getElementById('orderNumber').value || 'Sin_numero';
+            a.href = url;
+            a.download = `Orden_Trabajo_${orderNumber.replace(/\s+/g,'_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Documento Word generado');
+        }
+
+        // Excel con diseño (HTML -> .xls con estilos)
+        function downloadExcelStyled() {
+            const getVal = (id) => document.getElementById(id)?.value || '';
+            const checked = (id) => document.getElementById(id)?.checked;
+
+            const orderNumber = getVal('orderNumber') || 'Sin número';
+            const orderDate = getVal('orderDate') || 'No especificada';
+            const dueDate = getVal('dueDate') || 'No especificada';
+            const projectName = getVal('projectName') || 'Sin nombre';
+            const designer = getVal('designer') || 'No asignado';
+            const priority = document.getElementById('priority')?.value || 'No especificada';
+
+            const contentTypes = [
+                checked('reels') && 'Reels',
+                checked('posts') && 'Posts Instagram',
+                checked('stories') && 'Historias',
+                checked('carousel') && 'Carousel',
+                checked('facebook') && 'Facebook Posts',
+                checked('other') && 'Otro'
+            ].filter(Boolean).join(', ');
+
+            const contentTitle = getVal('contentTitle');
+            const contentText = getVal('contentText');
+            const cta = getVal('cta');
+            const hashtags = getVal('hashtags');
+            const mentions = getVal('mentions');
+
+            const ref1 = getVal('ref1');
+            const ref2 = getVal('ref2');
+            const ref3 = getVal('ref3');
+
+            const brandColors = getVal('brandColors');
+            const fonts = getVal('fonts');
+            const logoUsage = document.getElementById('logoUsage')?.value || '';
+            const styleSel = document.getElementById('style')?.value || '';
+
+            const resources = [
+                checked('logos') && 'Logotipos',
+                checked('images') && 'Imágenes',
+                checked('videos') && 'Videos',
+                checked('brandGuide') && 'Guía de Marca',
+                checked('copy') && 'Textos/Copy'
+            ].filter(Boolean).join(', ');
+
+            const resourceLinks = getVal('resourceLinks');
+            const additionalNotes = getVal('additionalNotes');
+
+            const esc = (s) => (s || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+
+            const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Orden de Trabajo</title>
+    <style>
+        body { font-family: Segoe UI, Arial, sans-serif; color:#111827; }
+        .sheet { width: 100%; border-collapse: collapse; }
+        .title {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color:#fff; font-size:20pt; font-weight:700; text-align:left;
+        }
+        .subtitle { color:#E5E7EB; font-size:10pt; }
+        .section { background:#EEF2FF; color:#1F2937; font-weight:700; }
+        .label { background:#F8FAFC; color:#111827; font-weight:600; width:32%; }
+        .value { background:#FFFFFF; color:#111827; }
+        td { border:1px solid #E5E7EB; padding:8px; vertical-align:top; }
+        .meta { background:#F1F5F9; color:#0F172A; }
+        .pill { display:inline-block; background:#DBEAFE; color:#1E40AF; padding:2px 8px; border-radius:999px; font-size:10pt; }
+        .right { text-align:right; }
+    </style>
+</head>
+<body>
+    <table class="sheet">
+        <tr>
+            <td class="title" colspan="2">📄 Orden de Trabajo - Diseño Gráfico<br><span class="subtitle">Generado desde formulario</span></td>
+        </tr>
+        <tr>
+            <td class="meta"><b>Proyecto/Cliente</b></td>
+            <td class="meta">${esc(projectName)}</td>
+        </tr>
+        <tr>
+            <td class="meta"><b>Fecha de Solicitud</b></td>
+            <td class="meta">${esc(orderDate)} &nbsp;&nbsp; <span class="pill">Prioridad: ${esc(priority)}</span></td>
+        </tr>
+        <tr>
+            <td class="meta"><b>Fecha de Entrega</b></td>
+            <td class="meta">${esc(dueDate)} &nbsp;&nbsp; <b>Diseñador:</b> ${esc(designer)}</td>
+        </tr>
+
+        <tr><td class="section" colspan="2">📋 Información Básica</td></tr>
+        <tr><td class="label">Número de Orden</td><td class="value">${esc(orderNumber)}</td></tr>
+
+        <tr><td class="section" colspan="2">🎯 Tipo de Contenido</td></tr>
+        <tr><td class="label">Contenidos Solicitados</td><td class="value">${esc(contentTypes)}</td></tr>
+
+        <tr><td class="section" colspan="2">✍️ Especificaciones de Contenido</td></tr>
+        <tr><td class="label">Título/Headline</td><td class="value">${esc(contentTitle)}</td></tr>
+        <tr><td class="label">Texto/Copy Principal</td><td class="value">${esc(contentText)}</td></tr>
+        <tr><td class="label">Llamado a la Acción (CTA)</td><td class="value">${esc(cta)}</td></tr>
+        <tr><td class="label">Hashtags</td><td class="value">${esc(hashtags)}</td></tr>
+        <tr><td class="label">Menciones/Etiquetas</td><td class="value">${esc(mentions)}</td></tr>
+
+        <tr><td class="section" colspan="2">🖼️ Referencias Visuales</td></tr>
+        <tr><td class="label">Referencia 1</td><td class="value">${esc(ref1)}</td></tr>
+        <tr><td class="label">Referencia 2</td><td class="value">${esc(ref2)}</td></tr>
+        <tr><td class="label">Referencia 3</td><td class="value">${esc(ref3)}</td></tr>
+
+        <tr><td class="section" colspan="2">⚙️ Especificaciones Técnicas</td></tr>
+        <tr><td class="label">Colores de Marca</td><td class="value">${esc(brandColors)}</td></tr>
+        <tr><td class="label">Fuentes Tipográficas</td><td class="value">${esc(fonts)}</td></tr>
+        <tr><td class="label">Uso de Logo</td><td class="value">${esc(logoUsage)}</td></tr>
+        <tr><td class="label">Estilo de Diseño</td><td class="value">${esc(styleSel)}</td></tr>
+
+        <tr><td class="section" colspan="2">📂 Recursos Disponibles</td></tr>
+        <tr><td class="label">Recursos</td><td class="value">${esc(resources)}</td></tr>
+        <tr><td class="label">Enlaces a Recursos</td><td class="value">${esc(resourceLinks)}</td></tr>
+
+        <tr><td class="section" colspan="2">📝 Notas Adicionales</td></tr>
+        <tr><td class="label">Notas</td><td class="value">${esc(additionalNotes)}</td></tr>
+    </table>
+</body>
+</html>`;
+
+            try {
+                const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Orden_Trabajo_${orderNumber.replace(/\s+/g,'_')}.xls`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('¡Excel con diseño generado!');
+            } catch (e) {
+                console.error('Error al generar Excel con diseño:', e);
+                showNotification('Error al generar Excel con diseño');
+            }
+        }
+
+        function saveOrder() {
+            // Guardar estado del formulario (persistencia rápida)
+            const fields = Array.from(document.querySelectorAll('input, select, textarea'));
+            const data = {};
+            fields.forEach(el => {
+                if (!el.id) return;
+                if (el.type === 'checkbox') data[el.id] = el.checked;
+                else data[el.id] = el.value;
+            });
+            localStorage.setItem('ordentrabajo_data', JSON.stringify(data));
+
+            // Además, guardar/actualizar en la lista de órdenes
+            const order = buildOrderFromForm();
+            addOrUpdateOrder(order);
+            renderOrdersTable();
+            showNotification('Orden guardada y registrada en el tablero');
+        }
+
+        function loadOrder() {
+            const raw = localStorage.getItem('ordentrabajo_data');
+            if (!raw) return false;
+            try {
+                const data = JSON.parse(raw);
+                Object.entries(data).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (el.type === 'checkbox') el.checked = !!val;
+                    else el.value = val;
+                });
+                return true;
+            } catch(e) {
+                console.warn('No se pudo cargar datos guardados', e);
+                return false;
+            }
+        }
+
+        function clearOrder() {
+            if (!confirm('¿Deseas limpiar todos los campos?')) return;
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.type === 'checkbox') el.checked = false;
+                else el.value = '';
+            });
+            localStorage.removeItem('ordentrabajo_data');
+            // Reaplicar fechas por defecto
+            setDefaultDates();
+            showNotification('Campos limpiados');
+        }
+
+        function setDefaultDates() {
+            const now = new Date();
+            const orderDateEl = document.getElementById('orderDate');
+            const dueDateEl = document.getElementById('dueDate');
+            if (orderDateEl && !orderDateEl.value) orderDateEl.valueAsDate = now;
+            if (dueDateEl && !dueDateEl.value) {
+                const due = new Date();
+                due.setDate(due.getDate() + 3);
+                dueDateEl.valueAsDate = due;
+            }
+        }
+
+        function printOrder() { window.print(); }
+
+        // Tema oscuro
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                themeToggleBtn.textContent = document.body.classList.contains('dark') ? '🌞 Modo claro' : '🌗 Modo oscuro';
+            });
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            const loaded = loadOrder();
+            setDefaultDates();
+            loadConfig();
+            renderOrdersTable();
+            // Programar chequeos de alertas periódicos
+            setInterval(checkAlerts, 30 * 60 * 1000); // cada 30 min
+            // Un primer chequeo tras cargar
+            setTimeout(() => checkAlerts(), 3000);
+        });
+
+        // ===== Gestión de órdenes (workflow) =====
+        function buildOrderFromForm() {
+            const getVal = (id) => document.getElementById(id)?.value || '';
+            const checked = (id) => document.getElementById(id)?.checked;
+            const orderNumber = getVal('orderNumber').trim();
+            const id = orderNumber || ('tmp-' + Date.now());
+            return {
+                id,
+                orderNumber,
+                orderDate: getVal('orderDate'),
+                dueDate: getVal('dueDate'),
+                projectName: getVal('projectName'),
+                designer: getVal('designer'),
+                priority: getVal('priority') || 'medium',
+                status: getVal('status') || 'pendiente',
+                waPhone: getVal('waPhone'),
+                content: {
+                    reels: checked('reels'), posts: checked('posts'), stories: checked('stories'), carousel: checked('carousel'), facebook: checked('facebook'), other: checked('other')
+                },
+                contentTitle: getVal('contentTitle'),
+                contentText: getVal('contentText'),
+                cta: getVal('cta'),
+                hashtags: getVal('hashtags'),
+                mentions: getVal('mentions'),
+                refs: { ref1: getVal('ref1'), ref2: getVal('ref2'), ref3: getVal('ref3') },
+                tech: { brandColors: getVal('brandColors'), fonts: getVal('fonts'), logoUsage: getVal('logoUsage'), style: getVal('style') },
+                resources: {
+                    logos: checked('logos'), images: checked('images'), videos: checked('videos'), brandGuide: checked('brandGuide'), copy: checked('copy'),
+                    links: getVal('resourceLinks')
+                },
+                notes: getVal('additionalNotes'),
+                _meta: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastPreAlert: null, lastPostAlert: null }
+            };
+        }
+
+        function getOrders() {
+            try { return JSON.parse(localStorage.getItem('ordentrabajo_orders') || '[]'); } catch { return []; }
+        }
+        function setOrders(list) {
+            localStorage.setItem('ordentrabajo_orders', JSON.stringify(list));
+        }
+        function addOrUpdateOrder(order) {
+            const list = getOrders();
+            const idx = list.findIndex(o => (o.orderNumber && o.orderNumber === order.orderNumber) || o.id === order.id);
+            if (idx >= 0) {
+                order._meta = { ...(list[idx]._meta||{}), updatedAt: new Date().toISOString() };
+                list[idx] = order;
+            } else {
+                list.push(order);
+            }
+            setOrders(list);
+        }
+        function updateOrderPartial(id, patch) {
+            const list = getOrders();
+            const i = list.findIndex(o => o.id === id);
+            if (i >= 0) {
+                list[i] = { ...list[i], ...patch, _meta: { ...(list[i]._meta||{}), updatedAt: new Date().toISOString() } };
+                setOrders(list);
+            }
+        }
+        function deleteOrder(id) {
+            const list = getOrders().filter(o => o.id !== id);
+            setOrders(list);
+        }
+
+        function daysDiffFromToday(dateStr) {
+            if (!dateStr) return null;
+            const d = new Date(dateStr + 'T12:00:00'); // mitigar TZ
+            const today = new Date();
+            const t = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0);
+            const diff = Math.round((d - t) / (1000*60*60*24));
+            return diff; // positivo: faltan días, 0 hoy, negativo: vencido
+        }
+
+        function statusChip(status) {
+            switch (status) {
+                case 'completado': return '<span class="chip success">Completado</span>';
+                case 'en_progreso': return '<span class="chip info">En progreso</span>';
+                default: return '<span class="chip warn">Pendiente</span>';
+            }
+        }
+
+        function dueBadge(dueDate) {
+            const d = daysDiffFromToday(dueDate);
+            if (d === null) return '<span class="muted">Sin fecha</span>';
+            if (d > 1) return `<span class="chip info">Faltan ${d} días</span>`;
+            if (d === 1) return '<span class="chip warn">Mañana</span>';
+            if (d === 0) return '<span class="chip warn">Hoy</span>';
+            return `<span class="chip danger">Vencido hace ${Math.abs(d)} d</span>`;
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.querySelector('#ordersTable tbody');
+            if (!tbody) return;
+            const list = getOrders();
+            tbody.innerHTML = list.map(o => {
+                const actions = [
+                    `<button class="btn btn-secondary" onclick=\"editOrder('${o.id}')\">Editar</button>`,
+                    `<button class="btn btn-success" onclick=\"markDone('${o.id}')\">Completar</button>`,
+                    `<button class="btn btn-primary" onclick=\"sendWhatsAppFor('${o.id}')\">Enviar WA</button>`,
+                    `<button class="btn btn-danger" onclick=\"removeOrder('${o.id}')\">Eliminar</button>`
+                ].join(' ');
+                return `<tr>
+                    <td>${(o.orderNumber||o.id)}</td>
+                    <td>${(o.projectName||'')}</td>
+                    <td>${(o.dueDate||'')}</td>
+                    <td>${statusChip(o.status)}</td>
+                    <td>${dueBadge(o.dueDate)}</td>
+                    <td>${actions}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function editOrder(id) {
+            const o = getOrders().find(x => x.id === id);
+            if (!o) return;
+            const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+            const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+            setVal('orderNumber', o.orderNumber);
+            setVal('orderDate', o.orderDate);
+            setVal('dueDate', o.dueDate);
+            setVal('projectName', o.projectName);
+            setVal('designer', o.designer);
+            setVal('priority', o.priority);
+            setVal('status', o.status);
+            setVal('waPhone', o.waPhone);
+            setChk('reels', o.content?.reels);
+            setChk('posts', o.content?.posts);
+            setChk('stories', o.content?.stories);
+            setChk('carousel', o.content?.carousel);
+            setChk('facebook', o.content?.facebook);
+            setChk('other', o.content?.other);
+            setVal('contentTitle', o.contentTitle);
+            setVal('contentText', o.contentText);
+            setVal('cta', o.cta);
+            setVal('hashtags', o.hashtags);
+            setVal('mentions', o.mentions);
+            setVal('ref1', o.refs?.ref1);
+            setVal('ref2', o.refs?.ref2);
+            setVal('ref3', o.refs?.ref3);
+            setVal('brandColors', o.tech?.brandColors);
+            setVal('fonts', o.tech?.fonts);
+            setVal('logoUsage', o.tech?.logoUsage);
+            setVal('style', o.tech?.style);
+            setChk('logos', o.resources?.logos);
+            setChk('images', o.resources?.images);
+            setChk('videos', o.resources?.videos);
+            setChk('brandGuide', o.resources?.brandGuide);
+            setChk('copy', o.resources?.copy);
+            setVal('resourceLinks', o.resources?.links);
+            setVal('additionalNotes', o.notes);
+            showNotification('Orden cargada para edición');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function markDone(id) {
+            updateOrderPartial(id, { status: 'completado' });
+            renderOrdersTable();
+            showNotification('Orden marcada como completada');
+        }
+        function removeOrder(id) {
+            if (!confirm('¿Eliminar esta orden?')) return;
+            deleteOrder(id);
+            renderOrdersTable();
+            showNotification('Orden eliminada');
+        }
+
+        // ===== Configuración =====
+        function loadConfig() {
+            try {
+                const cfg = JSON.parse(localStorage.getItem('ordentrabajo_config') || '{}');
+                const phone = document.getElementById('configPhone');
+                const auto = document.getElementById('configAutoOpenWa');
+                if (phone) phone.value = cfg.phone || '';
+                if (auto) auto.checked = !!cfg.autoOpenWa;
+                // importar listener para archivo
+                const file = document.getElementById('importFile');
+                if (file && !file._listenerAttached) {
+                    file.addEventListener('change', importOrders);
+                    file._listenerAttached = true;
+                }
+            } catch {}
+        }
+        function saveConfig() {
+            const phone = document.getElementById('configPhone')?.value || '';
+            const autoOpenWa = document.getElementById('configAutoOpenWa')?.checked || false;
+            localStorage.setItem('ordentrabajo_config', JSON.stringify({ phone, autoOpenWa }));
+            showNotification('Configuración guardada');
+        }
+        function getConfig() {
+            try { return JSON.parse(localStorage.getItem('ordentrabajo_config') || '{}'); } catch { return {}; }
+        }
+        function requestNotificationPermission() {
+            if (!('Notification' in window)) { showNotification('Notificaciones no disponibles'); return; }
+            Notification.requestPermission().then(res => {
+                showNotification(res === 'granted' ? 'Permiso de notificaciones concedido' : 'Permiso de notificaciones denegado');
+            });
+        }
+
+        // ===== WhatsApp helpers =====
+        function buildWhatsAppMessageFromOrder(o) {
+            const types = [];
+            if (o.content?.reels) types.push('Reels');
+            if (o.content?.posts) types.push('Posts Instagram');
+            if (o.content?.stories) types.push('Historias');
+            if (o.content?.carousel) types.push('Carousel');
+            if (o.content?.facebook) types.push('Posts Facebook');
+            if (o.content?.other) types.push('Otro');
+            let msg = `Orden de trabajo ${o.orderNumber || ''}\n`;
+            msg += `Proyecto: ${o.projectName || ''}\n`;
+            msg += `Entrega: ${o.dueDate || ''}\n`;
+            msg += `Prioridad: ${o.priority || ''}\n`;
+            msg += `Estado: ${o.status || ''}\n\n`;
+            if (types.length) msg += `Contenidos: ${types.join(', ')}\n`;
+            if (o.contentTitle) msg += `Título: ${o.contentTitle}\n`;
+            if (o.cta) msg += `CTA: ${o.cta}\n`;
+            if (o.resources?.links) msg += `Recursos:\n${o.resources.links}\n`;
+            return msg + `\nGracias.`;
+        }
+        function openWhatsApp(phone, text) {
+            if (!phone) { showNotification('Falta número de WhatsApp'); return; }
+            const url = `https://wa.me/${encodeURIComponent(phone)}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+        function sendWhatsAppFor(id) {
+            const o = getOrders().find(x => x.id === id);
+            if (!o) return;
+            const cfg = getConfig();
+            const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim();
+            const text = buildWhatsAppMessageFromOrder(o);
+            openWhatsApp(phone, text);
+        }
+
+        // ===== Alertas (1 día antes y 1 día después) =====
+        function todayISODate() {
+            const t = new Date();
+            return t.toISOString().slice(0,10);
+        }
+        function notify(title, body) {
+            try {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(title, { body });
+                }
+            } catch {}
+            showNotification(body);
+        }
+        function checkAlerts(manual=false) {
+            const list = getOrders();
+            const cfg = getConfig();
+            const todayStr = todayISODate();
+            list.forEach(o => {
+                if (!o.dueDate) return;
+                const d = daysDiffFromToday(o.dueDate);
+                // 1 día antes
+                if (d === 1 && (o.status !== 'completado')) {
+                    if (o._meta?.lastPreAlert !== todayStr) {
+                        const text = `Recordatorio: mañana vence la orden ${o.orderNumber || ''} (${o.projectName || ''}).`;
+                        notify('Recordatorio de entrega (mañana)', text);
+                        if (cfg.autoOpenWa) {
+                            const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim();
+                            const waText = 'Recordatorio: Mañana vence esta orden.\n\n' + buildWhatsAppMessageFromOrder(o);
+                            openWhatsApp(phone, waText);
+                        }
+                        o._meta = { ...(o._meta||{}), lastPreAlert: todayStr };
+                    }
+                }
+                // 1 día después
+                if (d === -1 && (o.status !== 'completado')) {
+                    if (o._meta?.lastPostAlert !== todayStr) {
+                        const text = `Seguimiento: ayer venció la orden ${o.orderNumber || ''} (${o.projectName || ''}).`;
+                        notify('Seguimiento de entrega (ayer)', text);
+                        if (cfg.autoOpenWa) {
+                            const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim();
+                            const waText = 'Seguimiento: Ayer venció esta orden.\n\n' + buildWhatsAppMessageFromOrder(o);
+                            openWhatsApp(phone, waText);
+                        }
+                        o._meta = { ...(o._meta||{}), lastPostAlert: todayStr };
+                    }
+                }
+            });
+            setOrders(list);
+            if (manual) showNotification('Revisión de alertas completada');
+        }
+
+        // ===== Import/Export Órdenes =====
+        function exportOrders() {
+            const list = getOrders();
+            const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ordenes_trabajo.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        function importOrders(evt) {
+            const file = evt.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const arr = JSON.parse(reader.result);
+                    if (Array.isArray(arr)) {
+                        setOrders(arr);
+                        renderOrdersTable();
+                        showNotification('Órdenes importadas');
+                    } else {
+                        showNotification('Archivo inválido');
+                    }
+                } catch(e) {
+                    showNotification('No se pudo importar');
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
