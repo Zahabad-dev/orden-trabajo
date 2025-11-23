@@ -503,14 +503,9 @@ async function addOrUpdateOrder(order) {
         console.log('[addOrUpdateOrder] ✅ Usuario válido. user.id =', user.id, 'user.email =', user.email);
 
         // Normalizar campos al esquema de la tabla
+        // Usar SOLO order_data (JSONB) para evitar errores de columnas
         const orderData = {
             user_id: user.id,
-            order_number: order.orderNumber || '',
-            project: order.projectName || '',
-            client: order.client || '',
-            delivery_date: order.dueDate || null,
-            content_type: Object.keys(order.content || {}).filter(k => order.content[k]).join(', '),
-            status: order.status || 'pendiente',
             order_data: order,
             updated_at: new Date().toISOString()
         };
