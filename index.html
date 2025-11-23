@@ -5,8 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orden de Trabajo - Diseño Gráfico</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Pantalla de Login -->
+  <div id="loginScreen" class="auth-screen">
+    <div class="auth-container">
+      <h1>🔐 Iniciar Sesión</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-primary">Ingresar</button>
+        <p class="auth-link">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate aquí</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pantalla de Registro -->
+  <div id="registerScreen" class="auth-screen" style="display: none;">
+    <div class="auth-container">
+      <h1>📝 Crear Cuenta</h1>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" required placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Contraseña</label>
+          <input type="password" id="registerPassword" required placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="form-group">
+          <label for="registerName">Nombre completo</label>
+          <input type="text" id="registerName" required placeholder="Tu nombre">
+        </div>
+        <button type="submit" class="btn-primary">Crear cuenta</button>
+        <p class="auth-link">¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión aquí</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Aplicación Principal -->
+  <div id="appScreen" style="display: none;">
   <div class="container">
     <header>
       <div>
@@ -14,6 +60,8 @@
         <p class="subtitle">Especificaciones para contenido de redes sociales</p>
       </div>
       <div class="header-actions">
+        <span id="userInfo" style="margin-right: 1rem; color: var(--text-color);"></span>
+        <button class="btn-secondary" id="logoutBtn" style="margin-right: 1rem;">🚪 Cerrar sesión</button>
         <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">🌗 Modo oscuro</button>
       </div>
     </header>
@@ -293,9 +341,12 @@
       </div>
     </div>
   </div>
+  </div>
 
   <div class="notification" id="notification">Acción realizada correctamente</div>
 
+  <script src="assets/js/supabase-config.js"></script>
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

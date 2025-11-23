@@ -268,13 +268,13 @@ function downloadExcelStyled() {
     }
 }
 
-function saveOrder() {
+async function saveOrder() {
     const fields = Array.from(document.querySelectorAll('input, select, textarea'));
     const data = {};
     fields.forEach(el => { if (!el.id) return; if (el.type === 'checkbox') data[el.id] = el.checked; else data[el.id] = el.value; });
     localStorage.setItem('ordentrabajo_data', JSON.stringify(data));
     const order = buildOrderFromForm();
-    addOrUpdateOrder(order); renderOrdersTable();
+    await addOrUpdateOrder(order);
     showNotification('Orden guardada y registrada en el tablero');
 }
 
@@ -315,7 +315,15 @@ if (themeToggleBtn) {
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    loadOrder(); setDefaultDates(); loadConfig(); renderOrdersTable();
+    // Solo inicializar si el usuario está autenticado
+    // La función initAuth() en auth.js se encarga de verificar esto
+    // y llamará a loadOrders() cuando el usuario esté logueado
+    
+    loadOrder(); 
+    setDefaultDates(); 
+    loadConfig(); 
+    
+    // Configurar alertas automáticas
     setInterval(checkAlerts, 30 * 60 * 1000); // cada 30 min
     setTimeout(() => checkAlerts(), 3000);
 });
@@ -346,21 +354,147 @@ function buildOrderFromForm() {
     };
 }
 
-function getOrders() { try { return JSON.parse(localStorage.getItem('ordentrabajo_orders') || '[]'); } catch { return []; } }
-function setOrders(list) { localStorage.setItem('ordentrabajo_orders', JSON.stringify(list)); }
-function addOrUpdateOrder(order) {
-    const list = getOrders();
-    const idx = list.findIndex(o => (o.orderNumber && o.orderNumber === order.orderNumber) || o.id === order.id);
-    if (idx >= 0) { order._meta = { ...(list[idx]._meta||{}), updatedAt: new Date().toISOString() }; list[idx] = order; }
-    else { list.push(order); }
-    setOrders(list);
+// ============================================
+// FUNCIONES DE BASE DE DATOS CON SUPABASE
+// ============================================
+
+async function getOrders() {
+    try {
+        const user = getCurrentUser();
+        if (!user) return [];
+        
+        const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        // Convertir de formato DB a formato app
+        return data.map(row => ({
+            id: row.id,
+            orderNumber: row.order_number,
+            client: row.client,
+            project: row.project,
+            deliveryDate: row.delivery_date,
+            contentType: row.content_type,
+            status: row.status,
+            ...row.order_data,
+            _meta: {
+                createdAt: row.created_at,
+                updatedAt: row.updated_at,
+                lastPreAlert: row.order_data?._meta?.lastPreAlert || null,
+                lastPostAlert: row.order_data?._meta?.lastPostAlert || null
+            }
+        }));
+    } catch (error) {
+        console.error('Error getting orders:', error);
+        notify('Error al cargar órdenes: ' + error.message, 'error');
+        return [];
+    }
 }
-function updateOrderPartial(id, patch) {
-    const list = getOrders();
-    const i = list.findIndex(o => o.id === id);
-    if (i >= 0) { list[i] = { ...list[i], ...patch, _meta: { ...(list[i]._meta||{}), updatedAt: new Date().toISOString() } }; setOrders(list); }
+
+async function setOrders(list) {
+    // Esta función ya no se usa, pero la mantenemos por compatibilidad
+    console.warn('setOrders() is deprecated, use addOrUpdateOrder() instead');
 }
-function deleteOrder(id) { const list = getOrders().filter(o => o.id !== id); setOrders(list); }
+
+async function addOrUpdateOrder(order) {
+    try {
+        const user = getCurrentUser();
+        if (!user) {
+            notify('Debes iniciar sesión para guardar órdenes', 'error');
+            return;
+        }
+        
+        const orderData = {
+            user_id: user.id,
+            order_number: order.orderNumber || '',
+            client: order.client || '',
+            project: order.project || '',
+            delivery_date: order.deliveryDate || null,
+            content_type: order.contentType || '',
+            status: order.status || 'pending',
+            order_data: order,
+            updated_at: new Date().toISOString()
+        };
+        
+        let result;
+        
+        if (order.id) {
+            // Actualizar orden existente
+            const { data, error } = await supabase
+                .from('orders')
+                .update(orderData)
+                .eq('id', order.id)
+                .eq('user_id', user.id)
+                .select();
+            
+            if (error) throw error;
+            result = data;
+        } else {
+            // Crear nueva orden
+            const { data, error } = await supabase
+                .from('orders')
+                .insert([orderData])
+                .select();
+            
+            if (error) throw error;
+            result = data;
+        }
+        
+        await loadOrders();
+        return result;
+    } catch (error) {
+        console.error('Error saving order:', error);
+        notify('Error al guardar orden: ' + error.message, 'error');
+    }
+}
+
+async function updateOrderPartial(id, patch) {
+    try {
+        const user = getCurrentUser();
+        if (!user) return;
+        
+        const { error } = await supabase
+            .from('orders')
+            .update({
+                ...patch,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .eq('user_id', user.id);
+        
+        if (error) throw error;
+        
+        await loadOrders();
+    } catch (error) {
+        console.error('Error updating order:', error);
+        notify('Error al actualizar orden: ' + error.message, 'error');
+    }
+}
+
+async function deleteOrder(id) {
+    try {
+        const user = getCurrentUser();
+        if (!user) return;
+        
+        const { error } = await supabase
+            .from('orders')
+            .delete()
+            .eq('id', id)
+            .eq('user_id', user.id);
+        
+        if (error) throw error;
+        
+        await loadOrders();
+        notify('Orden eliminada correctamente', 'success');
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        notify('Error al eliminar orden: ' + error.message, 'error');
+    }
+}
 
 function daysDiffFromToday(dateStr) {
     if (!dateStr) return null; const d = new Date(dateStr + 'T12:00:00');
@@ -381,9 +515,13 @@ function dueBadge(dueDate) {
     return `<span class="chip danger">Vencido hace ${Math.abs(d)} d</span>`;
 }
 
-function renderOrdersTable() {
+async function loadOrders() {
+    const orders = await getOrders();
+    renderOrdersTable(orders);
+}
+
+function renderOrdersTable(list = []) {
     const tbody = document.querySelector('#ordersTable tbody'); if (!tbody) return;
-    const list = getOrders();
     tbody.innerHTML = list.map(o => {
         const actions = [
             `<button class="btn btn-secondary" onclick=\"editOrder('${o.id}')\">Editar</button>`,
@@ -402,8 +540,9 @@ function renderOrdersTable() {
     }).join('');
 }
 
-function editOrder(id) {
-    const o = getOrders().find(x => x.id === id); if (!o) return;
+async function editOrder(id) {
+    const orders = await getOrders();
+    const o = orders.find(x => x.id === id); if (!o) return;
     const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
     const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
     setVal('orderNumber', o.orderNumber);
@@ -442,8 +581,15 @@ function editOrder(id) {
     showNotification('Orden cargada para edición'); window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function markDone(id) { updateOrderPartial(id, { status: 'completado' }); renderOrdersTable(); showNotification('Orden marcada como completada'); }
-function removeOrder(id) { if (!confirm('¿Eliminar esta orden?')) return; deleteOrder(id); renderOrdersTable(); showNotification('Orden eliminada'); }
+async function markDone(id) { 
+    await updateOrderPartial(id, { status: 'completado' }); 
+    showNotification('Orden marcada como completada'); 
+}
+
+async function removeOrder(id) { 
+    if (!confirm('¿Eliminar esta orden?')) return; 
+    await deleteOrder(id); 
+}
 
 // ===== Configuración =====
 function loadConfig() {
@@ -490,7 +636,16 @@ function buildWhatsAppMessageFromOrder(o) {
     return msg + `\nGracias.`;
 }
 function openWhatsApp(phone, text) { if (!phone) { showNotification('Falta número de WhatsApp'); return; } const url = `https://wa.me/${encodeURIComponent(phone)}?text=${encodeURIComponent(text)}`; window.open(url, '_blank'); }
-function sendWhatsAppFor(id) { const o = getOrders().find(x => x.id === id); if (!o) return; const cfg = getConfig(); const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim(); const text = buildWhatsAppMessageFromOrder(o); openWhatsApp(phone, text); }
+
+async function sendWhatsAppFor(id) { 
+    const orders = await getOrders();
+    const o = orders.find(x => x.id === id); 
+    if (!o) return; 
+    const cfg = getConfig(); 
+    const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim(); 
+    const text = buildWhatsAppMessageFromOrder(o); 
+    openWhatsApp(phone, text); 
+}
 
 // ===== Alertas =====
 function todayISODate() { const t = new Date(); return t.toISOString().slice(0,10); }
@@ -498,33 +653,64 @@ function notify(title, body) {
     try { if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body }); } catch {}
     showNotification(body);
 }
-function checkAlerts(manual=false) {
-    const list = getOrders(); const cfg = getConfig(); const todayStr = todayISODate();
-    list.forEach(o => {
-        if (!o.dueDate) return; const d = daysDiffFromToday(o.dueDate);
+
+async function checkAlerts(manual=false) {
+    const list = await getOrders(); 
+    const cfg = getConfig(); 
+    const todayStr = todayISODate();
+    
+    for (const o of list) {
+        if (!o.dueDate) continue;
+        const d = daysDiffFromToday(o.dueDate);
+        
         if (d === 1 && (o.status !== 'completado')) { // 1 día antes
             if (o._meta?.lastPreAlert !== todayStr) {
                 const text = `Recordatorio: mañana vence la orden ${o.orderNumber || ''} (${o.projectName || ''}).`;
                 notify('Recordatorio de entrega (mañana)', text);
-                if (cfg.autoOpenWa) { const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim(); const waText = 'Recordatorio: Mañana vence esta orden.\n\n' + buildWhatsAppMessageFromOrder(o); openWhatsApp(phone, waText); }
-                o._meta = { ...(o._meta||{}), lastPreAlert: todayStr };
+                
+                if (cfg.autoOpenWa) { 
+                    const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim(); 
+                    const waText = 'Recordatorio: Mañana vence esta orden.\n\n' + buildWhatsAppMessageFromOrder(o); 
+                    openWhatsApp(phone, waText); 
+                }
+                
+                // Actualizar metadata en la base de datos
+                const updatedOrderData = { ...o.order_data };
+                if (!updatedOrderData._meta) updatedOrderData._meta = {};
+                updatedOrderData._meta.lastPreAlert = todayStr;
+                
+                await updateOrderPartial(o.id, { order_data: updatedOrderData });
             }
         }
+        
         if (d === -1 && (o.status !== 'completado')) { // 1 día después
             if (o._meta?.lastPostAlert !== todayStr) {
                 const text = `Seguimiento: ayer venció la orden ${o.orderNumber || ''} (${o.projectName || ''}).`;
                 notify('Seguimiento de entrega (ayer)', text);
-                if (cfg.autoOpenWa) { const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim(); const waText = 'Seguimiento: Ayer venció esta orden.\n\n' + buildWhatsAppMessageFromOrder(o); openWhatsApp(phone, waText); }
-                o._meta = { ...(o._meta||{}), lastPostAlert: todayStr };
+                
+                if (cfg.autoOpenWa) { 
+                    const phone = (o.waPhone && o.waPhone.trim()) || (cfg.phone || '').trim(); 
+                    const waText = 'Seguimiento: Ayer venció esta orden.\n\n' + buildWhatsAppMessageFromOrder(o); 
+                    openWhatsApp(phone, waText); 
+                }
+                
+                // Actualizar metadata en la base de datos
+                const updatedOrderData = { ...o.order_data };
+                if (!updatedOrderData._meta) updatedOrderData._meta = {};
+                updatedOrderData._meta.lastPostAlert = todayStr;
+                
+                await updateOrderPartial(o.id, { order_data: updatedOrderData });
             }
         }
-    });
-    setOrders(list); if (manual) showNotification('Revisión de alertas completada');
+    }
+    
+    if (manual) showNotification('Revisión de alertas completada');
 }
 
 // ===== Import/Export Órdenes =====
-function exportOrders() {
-    const list = getOrders(); const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+async function exportOrders() {
+    const list = await getOrders(); 
+    const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob); const a = document.createElement('a');
     a.href = url; a.download = 'ordenes_trabajo.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
