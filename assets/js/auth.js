@@ -145,21 +145,58 @@ registerForm.addEventListener('submit', async (e) => {
 function attachLogoutHandler() {
   const btn = document.getElementById('logoutBtn');
   if (!btn || btn._listenerAttached) return;
+
+  // Limpia artefactos locales de auth (resiliente en navegadores móviles)
+  const cleanupLocalAuthArtifacts = () => {
+    try {
+      // Borrar claves de Supabase en local/session storage
+      const patterns = ['sb-', 'supabase', 'auth'];
+      for (let store of [localStorage, sessionStorage]) {
+        try {
+          const keys = Object.keys(store);
+          for (const k of keys) {
+            if (patterns.some(p => k.toLowerCase().includes(p))) {
+              store.removeItem(k);
+            }
+          }
+        } catch (_) { /* ignorar store inaccesible (modo privado) */ }
+      }
+    } catch (_) { /* noop */ }
+  };
+
   btn.addEventListener('click', async () => {
     btn.disabled = true;
+    let signoutError = null;
     try {
-      // "local" invalida la sesión actual; evita problemas multi-pestaña en móviles
-      const { error } = await supabase.auth.signOut({ scope: 'local' });
-      if (error) throw error;
-      notify('Sesión cerrada correctamente', 'success');
-      // Forzar refresco para limpiar cualquier estado residual del runtime
-      setTimeout(() => { window.location.href = '/'; }, 150);
-    } catch (error) {
-      console.error('Logout error:', error);
-      notify('Error al cerrar sesión: ' + (error?.message || 'desconocido'), 'error');
-    } finally {
-      btn.disabled = false;
+      // Intento 1: cerrar solo la sesión local (más seguro en multi-pestaña)
+      const res1 = await supabase.auth.signOut({ scope: 'local' });
+      if (res1?.error) throw res1.error;
+    } catch (err1) {
+      signoutError = err1;
+      // Intento 2: fallback a cierre global si la local falla (revoca refresh token)
+      try {
+        const res2 = await supabase.auth.signOut({ scope: 'global' });
+        if (res2?.error) throw res2.error;
+        signoutError = null; // éxito en fallback
+      } catch (err2) {
+        // Si ambas fallan, no bloquear: haremos limpieza local y continuamos
+        signoutError = err2 || err1;
+      }
     }
+
+    if (signoutError) {
+      console.warn('SignOut no limpio, aplicando limpieza local:', signoutError);
+    }
+
+    // Limpieza local y redirección forzada para evitar estados residuales
+    cleanupLocalAuthArtifacts();
+    notify(signoutError ? 'Sesión finalizada localmente' : 'Sesión cerrada correctamente', signoutError ? 'warning' : 'success');
+
+    // Usar replace para evitar volver con back; asegurar origen raíz
+    const target = window.location.origin + '/';
+    setTimeout(() => { window.location.replace(target); }, 150);
+
+    btn.disabled = false;
   });
   btn._listenerAttached = true;
 }
