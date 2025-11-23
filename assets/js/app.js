@@ -1,4 +1,6 @@
 // JS extraído de ordentrabajo.html
+// Estado global: ID de orden en edición (UUID real cuando se edita una existente)
+let editingOrderId = null;
 
 // Utilidad: notificación
 function showNotification(message) {
@@ -270,17 +272,23 @@ function downloadExcelStyled() {
 
 async function saveOrder() {
     const order = buildOrderFromForm();
+    console.log('[saveOrder] Intentando guardar orden', order);
+    setOrdersLoading(true, 'Guardando…');
     const result = await addOrUpdateOrder(order);
+    setOrdersLoading(false, '');
 
-    // Si se guardó correctamente, resetear modo edición
-    if (result && Array.isArray(result) && result[0]?.id) {
-        // El primer registro retornado tendrá el UUID real
-        editingOrderId = null;
+    if (!result || !Array.isArray(result) || !result[0]) {
+        showNotification('No se pudo guardar la orden. Verifica tu sesión o conexión.');
+        console.warn('[saveOrder] Resultado vacío, no se limpia el formulario');
+        return; // No limpiar para que el usuario no pierda datos
     }
 
-    // Limpiar formulario después de guardar (sin confirmación)
-    clearOrder(true);
+    // Si fue un insert, capturar el nuevo UUID para edición futura
+    const saved = result[0];
+    console.log('[saveOrder] Orden guardada en DB', saved);
+    editingOrderId = null; // Salir de modo edición
 
+    clearOrder(true); // ahora sí limpiar porque se guardó
     showNotification('Orden guardada y registrada en el tablero');
 }
 
@@ -341,9 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
             reloadBtn._listenerAttached = true;
         }
     });
-
-    // ID de la orden que se está editando (persistente mientras se edita)
-    let editingOrderId = null;
 
     function buildOrderFromForm() {
         const getVal = (id) => document.getElementById(id)?.value || '';
