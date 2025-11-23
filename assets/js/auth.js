@@ -12,7 +12,8 @@ const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const showRegisterLink = document.getElementById('showRegister');
 const showLoginLink = document.getElementById('showLogin');
-const logoutBtn = document.getElementById('logoutBtn');
+// Nota: el botón de logout puede no estar listo al cargar el script en algunos navegadores
+// Por eso adjuntamos el listener de forma segura cuando la app se muestra
 const userInfo = document.getElementById('userInfo');
 
 // ============================================
@@ -67,6 +68,9 @@ function showApp() {
   if (currentUser) {
     userInfo.textContent = `👤 ${currentUser.email}`;
   }
+  
+  // Asegurar que el botón de logout tenga su listener
+  attachLogoutHandler();
   
   // Cargar datos de la aplicación
   if (typeof loadOrders === 'function') {
@@ -137,17 +141,28 @@ registerForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Cerrar sesión
-logoutBtn.addEventListener('click', async () => {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    
-    notify('Sesión cerrada correctamente', 'success');
-  } catch (error) {
-    notify('Error al cerrar sesión: ' + error.message, 'error');
-  }
-});
+// Cerrar sesión (seguro en móviles y navegadores con carga diferida)
+function attachLogoutHandler() {
+  const btn = document.getElementById('logoutBtn');
+  if (!btn || btn._listenerAttached) return;
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      // "local" invalida la sesión actual; evita problemas multi-pestaña en móviles
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+      notify('Sesión cerrada correctamente', 'success');
+      // Forzar refresco para limpiar cualquier estado residual del runtime
+      setTimeout(() => { window.location.href = '/'; }, 150);
+    } catch (error) {
+      console.error('Logout error:', error);
+      notify('Error al cerrar sesión: ' + (error?.message || 'desconocido'), 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  btn._listenerAttached = true;
+}
 
 // Cambiar entre pantallas
 showRegisterLink.addEventListener('click', (e) => {
@@ -170,3 +185,4 @@ function getCurrentUser() {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', initAuth);
+document.addEventListener('DOMContentLoaded', attachLogoutHandler);
