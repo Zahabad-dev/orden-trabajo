@@ -269,29 +269,29 @@ function downloadExcelStyled() {
 }
 
 async function saveOrder() {
-    const fields = Array.from(document.querySelectorAll('input, select, textarea'));
-    const data = {};
-    fields.forEach(el => { if (!el.id) return; if (el.type === 'checkbox') data[el.id] = el.checked; else data[el.id] = el.value; });
-    localStorage.setItem('ordentrabajo_data', JSON.stringify(data));
     const order = buildOrderFromForm();
     await addOrUpdateOrder(order);
+    
+    // Limpiar formulario después de guardar (sin confirmación)
+    clearOrder(true);
+    
     showNotification('Orden guardada y registrada en el tablero');
 }
 
 function loadOrder() {
-    const raw = localStorage.getItem('ordentrabajo_data');
-    if (!raw) return false;
-    try {
-        const data = JSON.parse(raw);
-        Object.entries(data).forEach(([id, val]) => { const el = document.getElementById(id); if (!el) return; if (el.type === 'checkbox') el.checked = !!val; else el.value = val; });
-        return true;
-    } catch(e) { console.warn('No se pudo cargar datos guardados', e); return false; }
+    // Ya no cargamos desde localStorage automáticamente
+    // Solo se cargan datos cuando se edita una orden existente
+    return false;
 }
 
-function clearOrder() {
-    if (!confirm('¿Deseas limpiar todos los campos?')) return;
-    document.querySelectorAll('input, select, textarea').forEach(el => { if (el.type === 'checkbox') el.checked = false; else el.value = ''; });
-    localStorage.removeItem('ordentrabajo_data'); setDefaultDates(); showNotification('Campos limpiados');
+function clearOrder(skipConfirm = false) {
+    if (!skipConfirm && !confirm('¿Deseas limpiar todos los campos?')) return;
+    document.querySelectorAll('input, select, textarea').forEach(el => { 
+        if (el.type === 'checkbox') el.checked = false; 
+        else if (el.id !== 'orderDate' && el.id !== 'dueDate') el.value = ''; 
+    });
+    setDefaultDates(); 
+    if (!skipConfirm) showNotification('Campos limpiados');
 }
 
 function setDefaultDates() {
@@ -315,11 +315,10 @@ if (themeToggleBtn) {
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    // Solo inicializar si el usuario está autenticado
-    // La función initAuth() en auth.js se encarga de verificar esto
+    // Solo inicializar configuración básica
+    // La función initAuth() en auth.js se encarga de la autenticación
     // y llamará a loadOrders() cuando el usuario esté logueado
     
-    loadOrder(); 
     setDefaultDates(); 
     loadConfig(); 
     
