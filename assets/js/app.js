@@ -502,20 +502,23 @@ async function addOrUpdateOrder(order) {
 
         console.log('[addOrUpdateOrder] ✅ Usuario válido. user.id =', user.id, 'user.email =', user.email);
 
-        // Normalizar campos al esquema COMPLETO de la tabla orders en Supabase
-        // Columnas confirmadas: id, created_at, user_id, order_number, client, project, 
-        // delivery_date, content_type, order_data, status, updated_at
+        // Normalizar campos al esquema de Supabase (usar nombres EXACTOS de columnas)
+        // IMPORTANTE: PostgreSQL/Supabase es case-sensitive, usar snake_case
         const orderData = {
             user_id: user.id,
-            order_number: order.orderNumber || '',
-            client: order.client || '',
-            project: order.projectName || '',
-            delivery_date: order.dueDate || null,
-            content_type: Object.keys(order.content || {}).filter(k => order.content[k]).join(', '),
-            status: order.status || 'pendiente',
-            order_data: order,  // Guardar JSON completo para preservar todos los campos
-            updated_at: new Date().toISOString()
+            order_data: order  // Guardar JSON completo - esta columna siempre existe
         };
+        
+        // Agregar columnas opcionales solo si existen en el schema
+        // (evitar error PGRST204 si la columna no está creada)
+        if (order.orderNumber) orderData.order_number = order.orderNumber;
+        if (order.client) orderData.client = order.client;
+        if (order.projectName) orderData.project = order.projectName;
+        if (order.dueDate) orderData.delivery_date = order.dueDate;
+        if (order.status) orderData.status = order.status || 'pendiente';
+        
+        const contentType = Object.keys(order.content || {}).filter(k => order.content[k]).join(', ');
+        if (contentType) orderData.content_type = contentType;
         
         console.log('[addOrUpdateOrder] orderData normalizado para DB:', JSON.stringify(orderData, null, 2));
 
