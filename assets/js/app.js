@@ -370,23 +370,30 @@ async function getOrders() {
         
         if (error) throw error;
         
-        // Convertir de formato DB a formato app
-        return data.map(row => ({
-            id: row.id,
-            orderNumber: row.order_number,
-            client: row.client,
-            project: row.project,
-            deliveryDate: row.delivery_date,
-            contentType: row.content_type,
-            status: row.status,
-            ...row.order_data,
-            _meta: {
-                createdAt: row.created_at,
-                updatedAt: row.updated_at,
-                lastPreAlert: row.order_data?._meta?.lastPreAlert || null,
-                lastPostAlert: row.order_data?._meta?.lastPostAlert || null
-            }
-        }));
+        // Convertir de formato DB a formato app, preservando el UUID real y los datos crudos
+        return data.map(row => {
+            const base = row.order_data || {};
+            return {
+                // Datos del formulario (lo que la app espera)
+                ...base,
+                // Forzar el ID a ser el UUID de la fila para que UPDATE/DELETE funcionen
+                id: row.id,
+                // Normalizar campos mixtos entre DB y app
+                orderNumber: row.order_number || base.orderNumber || '',
+                projectName: base.projectName || row.project || '',
+                dueDate: base.dueDate || row.delivery_date || '',
+                status: row.status || base.status || 'pendiente',
+                // Mantener una copia del JSON original para actualizar metadatos
+                order_data: base,
+                // Metadatos
+                _meta: {
+                    createdAt: row.created_at,
+                    updatedAt: row.updated_at,
+                    lastPreAlert: base?._meta?.lastPreAlert || null,
+                    lastPostAlert: base?._meta?.lastPostAlert || null
+                }
+            };
+        });
     } catch (error) {
         console.error('Error getting orders:', error);
         notify('Error al cargar órdenes: ' + error.message, 'error');
