@@ -271,25 +271,54 @@ function downloadExcelStyled() {
 }
 
 async function saveOrder() {
+    console.log('=== [saveOrder] INICIO ===');
+    
+    // Validar sesión antes de intentar
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('ERROR: No hay sesión activa.\n\nPor favor inicia sesión antes de guardar.');
+        notify('Debes iniciar sesión para guardar', 'error');
+        console.error('[saveOrder] Abortado: no hay usuario logueado');
+        return;
+    }
+    
+    console.log('[saveOrder] ✅ Usuario logueado:', user.email, 'ID:', user.id);
+    
     const order = buildOrderFromForm();
-    console.log('[saveOrder] Intentando guardar orden', order);
+    console.log('[saveOrder] Orden construida desde formulario:', JSON.stringify(order, null, 2));
+    
+    // Validar campos mínimos
+    if (!order.orderNumber && !order.projectName) {
+        alert('ADVERTENCIA: Ni el Número de Orden ni el Proyecto están llenos.\n\nLlena al menos uno para poder guardar.');
+        notify('Llena al menos Número de Orden o Proyecto', 'warning');
+        console.warn('[saveOrder] Campos mínimos no cumplidos');
+        return;
+    }
+    
     setOrdersLoading(true, 'Guardando…');
     const result = await addOrUpdateOrder(order);
     setOrdersLoading(false, '');
 
+    console.log('[saveOrder] Resultado de addOrUpdateOrder:', result);
+
     if (!result || !Array.isArray(result) || !result[0]) {
-        showNotification('No se pudo guardar la orden. Verifica tu sesión o conexión.');
-        console.warn('[saveOrder] Resultado vacío, no se limpia el formulario');
-        return; // No limpiar para que el usuario no pierda datos
+        showNotification('No se pudo guardar la orden. Revisa la consola y los alerts.');
+        console.warn('[saveOrder] Resultado vacío o nulo, no se limpia el formulario');
+        return;
     }
 
-    // Si fue un insert, capturar el nuevo UUID para edición futura
     const saved = result[0];
-    console.log('[saveOrder] Orden guardada en DB', saved);
-    editingOrderId = null; // Salir de modo edición
-
-    clearOrder(true); // ahora sí limpiar porque se guardó
-    showNotification('Orden guardada y registrada en el tablero');
+    console.log('[saveOrder] ✅ Orden guardada exitosamente en DB. ID:', saved.id);
+    console.log('[saveOrder] Datos guardados:', saved);
+    
+    editingOrderId = null;
+    clearOrder(true);
+    showNotification('✅ Orden guardada y registrada en el tablero');
+    
+    // Forzar recarga explícita
+    console.log('[saveOrder] Forzando recarga de órdenes...');
+    await loadOrders();
+    console.log('[saveOrder] === FIN ===');
 }
 
 function loadOrder() {
@@ -381,9 +410,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 
 async function getOrders() {
+    console.log('=== [getOrders] INICIO ===');
     try {
         const user = getCurrentUser();
-        if (!user) return [];
+        console.log('[getOrders] Usuario actual:', user);
+        
+        if (!user) {
+            console.warn('[getOrders] No hay usuario logueado, retornando []');
+            return [];
+        }
+
+        console.log('[getOrders] Consultando tabla orders para user_id =', user.id);
         
         const { data, error } = await supabase
             .from('orders')
@@ -391,24 +428,28 @@ async function getOrders() {
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
         
+        console.log('[getOrders] Respuesta Supabase - data:', data, 'error:', error);
+        
         if (error) throw error;
         
-        // Convertir de formato DB a formato app, preservando el UUID real y los datos crudos
-        return data.map(row => {
+        if (!data || data.length === 0) {
+            console.log('[getOrders] ℹ️ No hay órdenes en la DB para este usuario');
+            return [];
+        }
+
+        console.log('[getOrders] ✅ Se encontraron', data.length, 'órdenes en la DB');
+        
+        // Convertir de formato DB a formato app
+        const orders = data.map(row => {
             const base = row.order_data || {};
             return {
-                // Datos del formulario (lo que la app espera)
                 ...base,
-                // Forzar el ID a ser el UUID de la fila para que UPDATE/DELETE funcionen
                 id: row.id,
-                // Normalizar campos mixtos entre DB y app
                 orderNumber: row.order_number || base.orderNumber || '',
                 projectName: base.projectName || row.project || '',
                 dueDate: base.dueDate || row.delivery_date || '',
                 status: row.status || base.status || 'pendiente',
-                // Mantener una copia del JSON original para actualizar metadatos
                 order_data: base,
-                // Metadatos
                 _meta: {
                     createdAt: row.created_at,
                     updatedAt: row.updated_at,
@@ -417,8 +458,14 @@ async function getOrders() {
                 }
             };
         });
+        
+        console.log('[getOrders] Órdenes normalizadas:', orders);
+        console.log('[getOrders] === FIN ===');
+        return orders;
     } catch (error) {
-        console.error('Error getting orders:', error);
+        console.error('=== [getOrders] ERROR ===');
+        console.error('[getOrders] Error completo:', error);
+        console.error('[getOrders] error.message:', error?.message);
         notify('Error al cargar órdenes: ' + error.message, 'error');
         return [];
     }
@@ -430,53 +477,105 @@ async function setOrders(list) {
 }
 
 async function addOrUpdateOrder(order) {
+    console.log('=== [addOrUpdateOrder] INICIO ===');
+    console.log('[addOrUpdateOrder] Objeto order recibido:', JSON.stringify(order, null, 2));
+    
     try {
         const user = getCurrentUser();
+        console.log('[addOrUpdateOrder] getCurrentUser() retornó:', user);
+        
         if (!user) {
+            const msg = 'ERROR CRÍTICO: No hay usuario logueado. currentUser es null.';
+            console.error('[addOrUpdateOrder]', msg);
+            alert(msg + '\n\nAsegúrate de estar logueado antes de guardar.');
             notify('Debes iniciar sesión para guardar órdenes', 'error');
-            return;
+            return null;
         }
+        
+        if (!user.id) {
+            const msg = 'ERROR CRÍTICO: El usuario no tiene ID (user.id es null/undefined).';
+            console.error('[addOrUpdateOrder]', msg, user);
+            alert(msg + '\n\nUsuario: ' + JSON.stringify(user));
+            notify('Usuario inválido, intenta cerrar sesión y volver a entrar', 'error');
+            return null;
+        }
+
+        console.log('[addOrUpdateOrder] ✅ Usuario válido. user.id =', user.id, 'user.email =', user.email);
 
         // Normalizar campos al esquema de la tabla
         const orderData = {
             user_id: user.id,
             order_number: order.orderNumber || '',
             project: order.projectName || '',
-            client: order.client || '', // puede venir vacío
+            client: order.client || '',
             delivery_date: order.dueDate || null,
             content_type: Object.keys(order.content || {}).filter(k => order.content[k]).join(', '),
             status: order.status || 'pendiente',
             order_data: order,
             updated_at: new Date().toISOString()
         };
+        
+        console.log('[addOrUpdateOrder] orderData normalizado para DB:', JSON.stringify(orderData, null, 2));
 
         // Determinar si el id es un UUID válido para decidir update vs insert
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(order.id || '');
+        console.log('[addOrUpdateOrder] Es UUID válido?', isUuid, '(id =', order.id, ')');
 
         let result;
         if (isUuid) {
+            console.log('[addOrUpdateOrder] 🔄 Ejecutando UPDATE en Supabase...');
             const { data, error } = await supabase
                 .from('orders')
                 .update(orderData)
                 .eq('id', order.id)
                 .eq('user_id', user.id)
                 .select();
+            
+            console.log('[addOrUpdateOrder] Respuesta UPDATE - data:', data, 'error:', error);
             if (error) throw error;
             result = data;
         } else {
+            console.log('[addOrUpdateOrder] ➕ Ejecutando INSERT en Supabase...');
             const { data, error } = await supabase
                 .from('orders')
                 .insert([orderData])
                 .select();
+            
+            console.log('[addOrUpdateOrder] Respuesta INSERT - data:', data, 'error:', error);
             if (error) throw error;
             result = data;
         }
 
+        if (!result || !Array.isArray(result) || result.length === 0) {
+            const msg = 'ADVERTENCIA: Supabase retornó respuesta vacía (sin error pero tampoco datos). Esto es raro.';
+            console.warn('[addOrUpdateOrder]', msg, 'result =', result);
+            alert(msg + '\n\nPosible problema de permisos RLS en Supabase o filtro que no coincide.');
+            notify('La orden pudo guardarse pero no se obtuvo confirmación. Recarga la página.', 'warning');
+            await loadOrders();
+            return result;
+        }
+
+        console.log('[addOrUpdateOrder] ✅ Operación exitosa. Resultado:', result);
         await loadOrders();
+        console.log('[addOrUpdateOrder] ✅ Tabla recargada');
         return result;
     } catch (error) {
-        console.error('Error saving order:', error);
+        console.error('=== [addOrUpdateOrder] ERROR CAPTURADO ===');
+        console.error('[addOrUpdateOrder] Error completo:', error);
+        console.error('[addOrUpdateOrder] error.message:', error?.message);
+        console.error('[addOrUpdateOrder] error.details:', error?.details);
+        console.error('[addOrUpdateOrder] error.hint:', error?.hint);
+        console.error('[addOrUpdateOrder] error.code:', error?.code);
+        
+        const detailedMsg = `Error al guardar orden en Supabase:\n\n` +
+                           `Mensaje: ${error?.message || 'desconocido'}\n` +
+                           `Detalles: ${error?.details || 'N/A'}\n` +
+                           `Hint: ${error?.hint || 'N/A'}\n` +
+                           `Código: ${error?.code || 'N/A'}`;
+        
+        alert(detailedMsg + '\n\nRevisa la consola para más información.');
         notify('Error al guardar orden: ' + (error?.message || 'desconocido'), 'error');
+        return null;
     }
 }
 
@@ -544,15 +643,20 @@ function dueBadge(dueDate) {
 }
 
 async function loadOrders() {
+    console.log('=== [loadOrders] INICIO ===');
     setOrdersLoading(true, 'Cargando órdenes…');
     try {
         const orders = await getOrders();
+        console.log('[loadOrders] getOrders retornó', orders.length, 'órdenes');
         renderOrdersTable(orders);
-        setOrdersLoading(false, orders.length ? `${orders.length} órdenes` : 'Sin órdenes');
+        const statusText = orders.length ? `${orders.length} órdenes` : 'Sin órdenes';
+        setOrdersLoading(false, statusText);
+        console.log('[loadOrders] ✅ Tabla renderizada con estado:', statusText);
     } catch (e) {
-        console.error(e);
+        console.error('[loadOrders] Error capturado:', e);
         setOrdersLoading(false, 'Error al cargar');
     }
+    console.log('[loadOrders] === FIN ===');
 }
 
 function renderOrdersTable(list = []) {
