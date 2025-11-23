@@ -270,11 +270,17 @@ function downloadExcelStyled() {
 
 async function saveOrder() {
     const order = buildOrderFromForm();
-    await addOrUpdateOrder(order);
-    
+    const result = await addOrUpdateOrder(order);
+
+    // Si se guardó correctamente, resetear modo edición
+    if (result && Array.isArray(result) && result[0]?.id) {
+        // El primer registro retornado tendrá el UUID real
+        editingOrderId = null;
+    }
+
     // Limpiar formulario después de guardar (sin confirmación)
     clearOrder(true);
-    
+
     showNotification('Orden guardada y registrada en el tablero');
 }
 
@@ -291,6 +297,8 @@ function clearOrder(skipConfirm = false) {
         else if (el.id !== 'orderDate' && el.id !== 'dueDate') el.value = ''; 
     });
     setDefaultDates(); 
+    // Salir de modo edición
+    editingOrderId = null;
     if (!skipConfirm) showNotification('Campos limpiados');
 }
 
@@ -334,30 +342,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ID de la orden que se está editando (persistente mientras se edita)
+    let editingOrderId = null;
+
     function buildOrderFromForm() {
         const getVal = (id) => document.getElementById(id)?.value || '';
         const checked = (id) => document.getElementById(id)?.checked;
         const orderNumber = getVal('orderNumber').trim();
-        const id = orderNumber || ('tmp-' + Date.now());
-    return {
-        id,
-        orderNumber,
-        orderDate: getVal('orderDate'),
-        dueDate: getVal('dueDate'),
-        projectName: getVal('projectName'),
-        designer: getVal('designer'),
-        priority: getVal('priority') || 'medium',
-        status: getVal('status') || 'pendiente',
-        waPhone: getVal('waPhone'),
-        content: { reels: checked('reels'), posts: checked('posts'), stories: checked('stories'), carousel: checked('carousel'), facebook: checked('facebook'), other: checked('other') },
-        contentTitle: getVal('contentTitle'), contentText: getVal('contentText'), cta: getVal('cta'), hashtags: getVal('hashtags'), mentions: getVal('mentions'),
-        refs: { ref1: getVal('ref1'), ref2: getVal('ref2'), ref3: getVal('ref3') },
-        tech: { brandColors: getVal('brandColors'), fonts: getVal('fonts'), logoUsage: getVal('logoUsage'), style: getVal('style') },
-        resources: { logos: checked('logos'), images: checked('images'), videos: checked('videos'), brandGuide: checked('brandGuide'), copy: checked('copy'), links: getVal('resourceLinks') },
-        notes: getVal('additionalNotes'),
-        _meta: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastPreAlert: null, lastPostAlert: null }
-    };
-}
+        // Si estamos editando, conservar el UUID real; de lo contrario usar orderNumber o temporal
+        const id = editingOrderId || orderNumber || ('tmp-' + Date.now());
+        return {
+            id,
+            orderNumber,
+            orderDate: getVal('orderDate'),
+            dueDate: getVal('dueDate'),
+            projectName: getVal('projectName'),
+            designer: getVal('designer'),
+            priority: getVal('priority') || 'medium',
+            status: getVal('status') || 'pendiente',
+            waPhone: getVal('waPhone'),
+            content: { reels: checked('reels'), posts: checked('posts'), stories: checked('stories'), carousel: checked('carousel'), facebook: checked('facebook'), other: checked('other') },
+            contentTitle: getVal('contentTitle'), contentText: getVal('contentText'), cta: getVal('cta'), hashtags: getVal('hashtags'), mentions: getVal('mentions'),
+            refs: { ref1: getVal('ref1'), ref2: getVal('ref2'), ref3: getVal('ref3') },
+            tech: { brandColors: getVal('brandColors'), fonts: getVal('fonts'), logoUsage: getVal('logoUsage'), style: getVal('style') },
+            resources: { logos: checked('logos'), images: checked('images'), videos: checked('videos'), brandGuide: checked('brandGuide'), copy: checked('copy'), links: getVal('resourceLinks') },
+            notes: getVal('additionalNotes'),
+            _meta: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastPreAlert: null, lastPostAlert: null }
+        };
+    }
 
 // ============================================
 // FUNCIONES DE BASE DE DATOS CON SUPABASE
@@ -419,48 +431,47 @@ async function addOrUpdateOrder(order) {
             notify('Debes iniciar sesión para guardar órdenes', 'error');
             return;
         }
-        
+
+        // Normalizar campos al esquema de la tabla
         const orderData = {
             user_id: user.id,
             order_number: order.orderNumber || '',
-            client: order.client || '',
-            project: order.project || '',
-            delivery_date: order.deliveryDate || null,
-            content_type: order.contentType || '',
-            status: order.status || 'pending',
+            project: order.projectName || '',
+            client: order.client || '', // puede venir vacío
+            delivery_date: order.dueDate || null,
+            content_type: Object.keys(order.content || {}).filter(k => order.content[k]).join(', '),
+            status: order.status || 'pendiente',
             order_data: order,
             updated_at: new Date().toISOString()
         };
-        
+
+        // Determinar si el id es un UUID válido para decidir update vs insert
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(order.id || '');
+
         let result;
-        
-        if (order.id) {
-            // Actualizar orden existente
+        if (isUuid) {
             const { data, error } = await supabase
                 .from('orders')
                 .update(orderData)
                 .eq('id', order.id)
                 .eq('user_id', user.id)
                 .select();
-            
             if (error) throw error;
             result = data;
         } else {
-            // Crear nueva orden
             const { data, error } = await supabase
                 .from('orders')
                 .insert([orderData])
                 .select();
-            
             if (error) throw error;
             result = data;
         }
-        
+
         await loadOrders();
         return result;
     } catch (error) {
         console.error('Error saving order:', error);
-        notify('Error al guardar orden: ' + error.message, 'error');
+        notify('Error al guardar orden: ' + (error?.message || 'desconocido'), 'error');
     }
 }
 
@@ -583,6 +594,8 @@ function reloadOrders() {
 async function editOrder(id) {
     const orders = await getOrders();
     const o = orders.find(x => x.id === id); if (!o) return;
+    // Activar modo edición (conservar UUID para update)
+    editingOrderId = o.id;
     const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
     const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
     setVal('orderNumber', o.orderNumber);
