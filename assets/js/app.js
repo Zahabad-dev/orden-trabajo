@@ -502,13 +502,22 @@ async function addOrUpdateOrder(order) {
 
         console.log('[addOrUpdateOrder] ✅ Usuario válido. user.id =', user.id, 'user.email =', user.email);
 
-        // Normalizar campos al esquema de la tabla
-        // Usar SOLO order_data (JSONB) para evitar errores de columnas
+        // Normalizar campos al esquema REAL de la tabla orders en Supabase
+        // Columnas confirmadas: id, created_at, user_id, order_number, client, project, delivery_date, content_type
         const orderData = {
             user_id: user.id,
-            order_data: order,
-            updated_at: new Date().toISOString()
+            order_number: order.orderNumber || '',
+            client: order.client || '',
+            project: order.projectName || '',
+            delivery_date: order.dueDate || null,
+            content_type: Object.keys(order.content || {}).filter(k => order.content[k]).join(', '),
+            order_data: order  // Guardar también el JSON completo para preservar todos los campos
         };
+        
+        // Si la tabla tiene columna 'status', agregarla (verificar scroll derecho en Supabase)
+        if (order.status) {
+            orderData.status = order.status;
+        }
         
         console.log('[addOrUpdateOrder] orderData normalizado para DB:', JSON.stringify(orderData, null, 2));
 
