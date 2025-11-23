@@ -1,6 +1,8 @@
-# Orden de Trabajo - Plataforma de Gestión para Diseño Gráfico
+# Orden de Trabajo - Plataforma de Gestión para Diseño Gráfico 🎨
 
 Sistema de gestión de órdenes de trabajo con flujo de alertas automatizado vía WhatsApp, diseñado para equipos de diseño gráfico y contenido de redes sociales.
+
+**Auto-Deploy activado con GitHub + Vercel** ✅
 
 ## 🚀 Características
 
