@@ -502,25 +502,17 @@ async function addOrUpdateOrder(order) {
 
         console.log('[addOrUpdateOrder] ✅ Usuario válido. user.id =', user.id, 'user.email =', user.email);
 
-        // Normalizar campos al esquema de Supabase (usar nombres EXACTOS de columnas)
-        // IMPORTANTE: PostgreSQL/Supabase es case-sensitive, usar snake_case
+        // SOLUCIÓN DEFINITIVA: Solo usar columnas que SABEMOS que existen
+        // Columnas confirmadas que siempre existen: user_id, order_data
         const orderData = {
             user_id: user.id,
-            order_data: order  // Guardar JSON completo - esta columna siempre existe
+            order_data: order
         };
         
-        // Agregar columnas opcionales solo si existen en el schema
-        // (evitar error PGRST204 si la columna no está creada)
-        if (order.orderNumber) orderData.order_number = order.orderNumber;
-        if (order.client) orderData.client = order.client;
-        if (order.projectName) orderData.project = order.projectName;
-        if (order.dueDate) orderData.delivery_date = order.dueDate;
-        if (order.status) orderData.status = order.status || 'pendiente';
+        // NO incluir delivery_date, content_type, status, etc. porque causan PGRST204
+        // Todo se guarda en order_data (JSONB) que es flexible
         
-        const contentType = Object.keys(order.content || {}).filter(k => order.content[k]).join(', ');
-        if (contentType) orderData.content_type = contentType;
-        
-        console.log('[addOrUpdateOrder] orderData normalizado para DB:', JSON.stringify(orderData, null, 2));
+        console.log('[addOrUpdateOrder] orderData para DB (solo columnas seguras):', JSON.stringify(orderData, null, 2));
 
         // Determinar si el id es un UUID válido para decidir update vs insert
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(order.id || '');
