@@ -1,5 +1,5 @@
 {
-  "name": "orden-trabajo-latirana",
+  "name": "orden-trabajo",
   "version": "1.0.0",
   "description": "Plataforma de gestión de órdenes de trabajo con alertas WhatsApp para diseño gráfico",
   "main": "index.html",
@@ -15,7 +15,7 @@
     "diseño-gráfico",
     "alertas"
   ],
-  "author": "LATIRANA",
+  "author": "",
   "license": "UNLICENSED",
   "private": true
 }

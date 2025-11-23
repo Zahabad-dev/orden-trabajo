@@ -202,7 +202,7 @@ En `index.html`, dentro del `<header>`:
 
 ## 📄 Licencia
 
-Propiedad de LATIRANA - Todos los derechos reservados
+Todos los derechos reservados
 
 ## 👨‍💻 Soporte
 
