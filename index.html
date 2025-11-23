@@ -288,6 +288,11 @@
         <button class="btn btn-primary" onclick="checkAlerts(true)">Revisar alertas ahora</button>
         <span class="muted">Las alertas se revisan periódicamente mientras esta página está abierta.</span>
       </div>
+      <div id="ordersStatus" class="orders-status" style="display:none;">
+        <div class="spinner" aria-hidden="true"></div>
+        <span id="ordersStatusText">Cargando órdenes…</span>
+        <button id="reloadOrdersBtn" class="btn btn-secondary" type="button" style="margin-left:auto;">Recargar</button>
+      </div>
       <div style="overflow:auto;">
         <table class="table" id="ordersTable">
           <thead>

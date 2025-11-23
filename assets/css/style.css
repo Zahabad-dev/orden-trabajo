@@ -100,6 +100,31 @@ input:invalid, select:invalid, textarea:invalid { border-color: #ef4444; }
 .theme-toggle { background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 10px 14px; border-radius: 20px; cursor: pointer; transition: background 0.2s ease; }
 .theme-toggle:hover { background: rgba(255,255,255,0.25); }
 
+/* Barra de estado de órdenes */
+.orders-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 0 0 12px 0;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary-end);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* ============================================ */
 /* ESTILOS DE AUTENTICACIÓN */
 /* ============================================ */

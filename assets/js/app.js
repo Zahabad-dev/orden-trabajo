@@ -325,14 +325,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar alertas automáticas
     setInterval(checkAlerts, 30 * 60 * 1000); // cada 30 min
     setTimeout(() => checkAlerts(), 3000);
-});
 
-// ===== Gestión de órdenes (workflow) =====
-function buildOrderFromForm() {
-    const getVal = (id) => document.getElementById(id)?.value || '';
-    const checked = (id) => document.getElementById(id)?.checked;
-    const orderNumber = getVal('orderNumber').trim();
-    const id = orderNumber || ('tmp-' + Date.now());
+        // Botón de recarga
+        const reloadBtn = document.getElementById('reloadOrdersBtn');
+        if (reloadBtn && !reloadBtn._listenerAttached) {
+            reloadBtn.addEventListener('click', reloadOrders);
+            reloadBtn._listenerAttached = true;
+        }
+    });
+
+    function buildOrderFromForm() {
+        const getVal = (id) => document.getElementById(id)?.value || '';
+        const checked = (id) => document.getElementById(id)?.checked;
+        const orderNumber = getVal('orderNumber').trim();
+        const id = orderNumber || ('tmp-' + Date.now());
     return {
         id,
         orderNumber,
@@ -522,12 +528,23 @@ function dueBadge(dueDate) {
 }
 
 async function loadOrders() {
-    const orders = await getOrders();
-    renderOrdersTable(orders);
+    setOrdersLoading(true, 'Cargando órdenes…');
+    try {
+        const orders = await getOrders();
+        renderOrdersTable(orders);
+        setOrdersLoading(false, orders.length ? `${orders.length} órdenes` : 'Sin órdenes');
+    } catch (e) {
+        console.error(e);
+        setOrdersLoading(false, 'Error al cargar');
+    }
 }
 
 function renderOrdersTable(list = []) {
     const tbody = document.querySelector('#ordersTable tbody'); if (!tbody) return;
+    if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align:center">No hay órdenes aún</td></tr>`;
+        return;
+    }
     tbody.innerHTML = list.map(o => {
         const actions = [
             `<button class="btn btn-secondary" onclick=\"editOrder('${o.id}')\">Editar</button>`,
@@ -544,6 +561,23 @@ function renderOrdersTable(list = []) {
             <td>${actions}</td>
         </tr>`;
     }).join('');
+}
+
+// Estado de carga y recarga manual
+function setOrdersLoading(isLoading, text = '') {
+    const bar = document.getElementById('ordersStatus');
+    const label = document.getElementById('ordersStatusText');
+    const spinner = bar?.querySelector('.spinner');
+    const reloadBtn = document.getElementById('reloadOrdersBtn');
+    if (!bar || !label || !spinner || !reloadBtn) return;
+    bar.style.display = 'flex';
+    label.textContent = text || (isLoading ? 'Cargando…' : '');
+    spinner.style.display = isLoading ? 'inline-block' : 'none';
+    reloadBtn.disabled = !!isLoading;
+}
+
+function reloadOrders() {
+    loadOrders();
 }
 
 async function editOrder(id) {
