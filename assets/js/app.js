@@ -162,6 +162,12 @@ function generateWhatsAppMessage() {
     if (document.getElementById('videos').checked) message += `✅ Videos\n`;
     if (document.getElementById('brandGuide').checked) message += `✅ Guía de Marca\n`;
     if (document.getElementById('copy').checked) message += `✅ Textos/Copy\n`;
+    
+    const additionalNotes = document.getElementById('additionalNotes').value || '';
+    if (additionalNotes) {
+        message += `\n*📝 NOTAS ADICIONALES:*\n${additionalNotes}\n`;
+    }
+    
     message += `\nRevisa la orden completa para más detalles. ¡Gracias!`;
     alert("Mensaje de WhatsApp generado. Puedes copiarlo y enviarlo.");
     console.log(message);
